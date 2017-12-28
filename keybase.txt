@@ -1,0 +1,55 @@
+==================================================================
+https://keybase.io/bedi
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://egilmez.io
+  * I am bedi (https://keybase.io/bedi) on keybase.
+  * I have a public key ASATochmJTO3k0KwVrHiGDstxihNkSpPMRw2Syg4lwPk8Qo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "012094274863f3aca6ed8be24c13cc20a87774617ca326213bbce3f47c9c26a12a2a0a",
+      "host": "keybase.io",
+      "kid": "012013a1c8662533b79342b056b1e2183b2dc6284d912a4f311c364b28389703e4f10a",
+      "uid": "1d79070d07abf83f76889324beccc419",
+      "username": "bedi"
+    },
+    "merkle_root": {
+      "ctime": 1514449248,
+      "hash": "3231caa56a43c5b4c2042d9d3ededada3489490d29fc9efc954842b98c7e28b59a7b11db57f1044475c88287d252630c04f7502d0e2594da56e47851cc2dcd39",
+      "hash_meta": "d5eda6ee24a5db3dc701eda853add11b64ba5a9daba73de2bf33cc2cb9dda88e",
+      "seqno": 1863650
+    },
+    "service": {
+      "hostname": "egilmez.io",
+      "protocol": "http:"
+    },
+    "type": "web_service_binding",
+    "version": 1
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "1.0.38"
+  },
+  "ctime": 1514449342,
+  "expire_in": 504576000,
+  "prev": "70734b37a8ff55fdfaf658237ab942842f928c1a059bd51281924dfa478c517f",
+  "seqno": 22,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgE6HIZiUzt5NCsFax4hg7LcYoTZEqTzEcNksoOJcD5PEKp3BheWxvYWTFAz57ImJvZHkiOnsia2V5Ijp7ImVsZGVzdF9raWQiOiIwMTIwOTQyNzQ4NjNmM2FjYTZlZDhiZTI0YzEzY2MyMGE4Nzc3NDYxN2NhMzI2MjEzYmJjZTNmNDdjOWMyNmExMmEyYTBhIiwiaG9zdCI6ImtleWJhc2UuaW8iLCJraWQiOiIwMTIwMTNhMWM4NjYyNTMzYjc5MzQyYjA1NmIxZTIxODNiMmRjNjI4NGQ5MTJhNGYzMTFjMzY0YjI4Mzg5NzAzZTRmMTBhIiwidWlkIjoiMWQ3OTA3MGQwN2FiZjgzZjc2ODg5MzI0YmVjY2M0MTkiLCJ1c2VybmFtZSI6ImJlZGkifSwibWVya2xlX3Jvb3QiOnsiY3RpbWUiOjE1MTQ0NDkyNDgsImhhc2giOiIzMjMxY2FhNTZhNDNjNWI0YzIwNDJkOWQzZWRlZGFkYTM0ODk0OTBkMjlmYzllZmM5NTQ4NDJiOThjN2UyOGI1OWE3YjExZGI1N2YxMDQ0NDc1Yzg4Mjg3ZDI1MjYzMGMwNGY3NTAyZDBlMjU5NGRhNTZlNDc4NTFjYzJkY2QzOSIsImhhc2hfbWV0YSI6ImQ1ZWRhNmVlMjRhNWRiM2RjNzAxZWRhODUzYWRkMTFiNjRiYTVhOWRhYmE3M2RlMmJmMzNjYzJjYjlkZGE4OGUiLCJzZXFubyI6MTg2MzY1MH0sInNlcnZpY2UiOnsiaG9zdG5hbWUiOiJlZ2lsbWV6LmlvIiwicHJvdG9jb2wiOiJodHRwOiJ9LCJ0eXBlIjoid2ViX3NlcnZpY2VfYmluZGluZyIsInZlcnNpb24iOjF9LCJjbGllbnQiOnsibmFtZSI6ImtleWJhc2UuaW8gZ28gY2xpZW50IiwidmVyc2lvbiI6IjEuMC4zOCJ9LCJjdGltZSI6MTUxNDQ0OTM0MiwiZXhwaXJlX2luIjo1MDQ1NzYwMDAsInByZXYiOiI3MDczNGIzN2E4ZmY1NWZkZmFmNjU4MjM3YWI5NDI4NDJmOTI4YzFhMDU5YmQ1MTI4MTkyNGRmYTQ3OGM1MTdmIiwic2Vxbm8iOjIyLCJ0YWciOiJzaWduYXR1cmUifaNzaWfEQDUtR9SjcgSed514+FIZcIQo5OqAgN2lbJ4LtBA5jgQ7LktYS+LqICh13rliXJY3jVItS/Fzjq1slmXfxBEreA6oc2lnX3R5cGUgpGhhc2iCpHR5cGUIpXZhbHVlxCD69J1+7+YSBgd367G4/Sf513AV1hz0OC2/sXeZ7RA646N0YWfNAgKndmVyc2lvbgE=
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/bedi
+
+==================================================================
