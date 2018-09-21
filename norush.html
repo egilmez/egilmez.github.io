@@ -102,7 +102,7 @@
         var directionsDisplay = new google.maps.DirectionsRenderer;
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 7,
-          center: {lat: 41.85, lng: -87.65}
+          center: {lat: 37.8760269, lng: -123.5441855}
         });
         directionsDisplay.setMap(map);
 
@@ -157,6 +157,7 @@
         var li = document.createElement("li");
         li.appendChild(document.createTextNode(textNode));
         ul.appendChild(li);
+        responsiveVoice.speak(Math.ceil(duration/60) +" minutes to your destination");
       }
 
       function calculateAndDisplayRoute(directionsService, directionsDisplay, when) {
@@ -203,6 +204,7 @@
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhAXm71JQIp1WT60Q1vIMx15Ur-jAoYy0&libraries=places&callback=initMapAndAutocomplete"
         async defer></script>
+      <script src='https://code.responsivevoice.org/responsivevoice.js'></script>
   </body>
 </html>
 
