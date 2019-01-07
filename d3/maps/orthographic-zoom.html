@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<!-- Based on https://bl.ocks.org/curran/0bb64d8f56042e2480c908b0985f063b -->
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/topojson.v1.min.js"></script>
+</head>
+<body>
+  <svg width="960" height="500"></svg>
+  <script>
+    const svg = d3.select('svg');
+    const path = svg.append('path').attr('stroke', 'gray');
+    const citiesG = svg.append('g');
+    const projection = d3.geoOrthographic();
+    const initialScale = projection.scale();
+    const geoPath = d3.geoPath().projection(projection);
+    let moving = false;
+    const rValue = d => d.population;
+    const rScale = d3.scaleSqrt().range([0, 5]);
+    d3.queue()
+      .defer(d3.json, 'https://unpkg.com/world-atlas@1/world/110m.json')
+      .defer(d3.json, 'https://unpkg.com/world-atlas@1/world/50m.json')
+      .await((error, world110m, world50m) => {
+        const countries110m = topojson
+          .feature(world110m, world110m.objects.countries);
+        const countries50m = topojson
+          .feature(world50m, world50m.objects.countries);
+      
+        const render = () => {
+          
+          // Render low resolution boundaries when moving,
+          // render high resolution boundaries when stopped.
+          path.attr('d', geoPath(moving ? countries110m : countries50m));
+          
+          const point = {
+            type: 'Point',
+            coordinates: [0,0]
+          };
+        };
+        render();
+
+        let rotate0, coords0;
+        const coords = () => projection.rotate(rotate0)
+          .invert([d3.event.x, d3.event.y]);
+
+        svg
+          .call(d3.drag()
+            .on('start', () => {
+              rotate0 = projection.rotate();
+              coords0 = coords();
+              moving = true;
+            })
+            .on('drag', () => {
+              const coords1 = coords();
+              projection.rotate([
+                rotate0[0] + coords1[0] - coords0[0],
+                rotate0[1] + coords1[1] - coords0[1],
+              ])
+              render();
+            })
+            .on('end', () => {
+              moving = false;
+              render();
+            })
+            // Goal: let zoom handle pinch gestures (not working correctly).
+            .filter(() => !(d3.event.touches && d3.event.touches.length === 2))
+          )
+          .call(d3.zoom()
+            .on('zoom', () => {
+              projection.scale(initialScale * d3.event.transform.k);
+              render();
+            })
+            .on('start', () => {
+              moving = true;
+            })
+            .on('end', () => {
+              moving = false;
+              render();
+            })
+          )
+      });
+  </script>
+</body>
