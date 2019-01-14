@@ -4,9 +4,11 @@
   <meta charset="utf-8">
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <script src="https://d3js.org/topojson.v1.min.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+
 
   <style>
-    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0;background: #000000; }
+    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0;background: #A9A9A9; }
     
   </style>
 </head>
@@ -18,10 +20,13 @@
 /* Set up */
 /* ====== */
   
-  
-var width = 960,
-    height = 500,
-    margin = { top: 30, right: 30, bottom: 30, left: 30 },
+
+var width = $(window).width();
+var height = $(window).height();
+
+//var width = 960,
+//    height = 500,
+var margin = { top: 30, right: 30, bottom: 30, left: 30 },
     originalScale = height / 2.1,
     scale = originalScale,
     translation = [width / 2, height / 2],
@@ -57,9 +62,13 @@ var path = d3.geoPath()
 /* Data load */
 /* ========= */
 
+var rScale = d3.scaleSqrt();
+var peoplePerPixel = 1; //000;
+var max_population = [];
 
 d3.queue()
-  .defer(d3.csv, 'cities_all.csv')
+ // .defer(d3.csv, 'cities_all.csv')
+  .defer(d3.json, 'grads2.geojson')
   .defer(d3.json, 'world-110m-simple.json')
   .await(load);
 
@@ -71,17 +80,35 @@ function load(error, cities, world) {
       grid = graticule();
 
 
-  var outerArray = [];
-  cities.forEach(function(el) {
+  population_array = [];
 
-    var innerArray = [+el.Longitude, +el.Latitude];
-    outerArray.push(innerArray);
+    for (i = 0; i < cities.features.length; i++) {
+          population_array.push(cities.features[i].properties.count);
+        }
+        console.log(population_array);
+        max_population = population_array.sort(d3.descending)[0]
+        var rMin = 1;
+        var rMax = Math.sqrt(max_population / (peoplePerPixel * Math.PI));
+        rScale.domain([0, max_population]);
+        rScale.range([rMin, rMax]);
 
-  }); 
+        path.pointRadius(function(d) {
+          return d.properties ? rScale(d.properties.count) : 1;
+
+        });
+
+        svg.selectAll("path.cities").data(cities.features)
+          .enter().append("path")
+          .attr("class", "cities")
+          .attr("d", path)
+          .attr("fill", "#00c7ff")
+          .attr("fill-opacity", 1);
+
+ 
 
   var points = { 
     type: "MultiPoint", 
-    coordinates: outerArray 
+    coordinates: population_array 
   }; 
 
   console.log(land);
@@ -240,7 +267,7 @@ function eulerAngles(v0, v1, o0) {
       .attr('id', 'sphere')
       .attr('d', path)
       .attr('fill', 'none')
-      .attr('stroke', '#ccc')
+      .attr('stroke', 'rgba(255,255,255, 0.7)')
       .attr('stroke-width', 1);
 
   var gridlines = svg.selectAll('.grid')
@@ -261,7 +288,7 @@ function eulerAngles(v0, v1, o0) {
       .classed('world', true)
       .classed('countries', true)
       .attr('d', path)
-      .attr('fill', '#ccc')
+      .attr('fill', 'rgba(255,255,255, 0.5)')
       .attr('stroke', '#fff')
       .attr('stroke-width', 1);
 
