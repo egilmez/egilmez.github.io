@@ -4,23 +4,6 @@
 https://www.perplexity.ai/search/can-you-write-me-a-javascript-zpnNMZxPTqmGPd5TsFJrbQ
 -->
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction Form</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        .form-container { margin: 20px; max-width: 600px; padding: 10px; }
-        .payee { margin: 5px 0; display: flex; align-items: center; flex-wrap: wrap; }
-        .payee label, .payee input { margin: 5px 5px 5px 0; }
-        .payee input[type="text"], .payee input[type="number"] { flex: 1 1 auto; min-width: 100px; }
-        .remove-button { margin-left: 10px; color: red; cursor: pointer; }
-        .shortcut-info { display: none; margin-top: 10px; font-size: 0.9em; color: gray; }
-        
-        /* Show shortcut info on larger screens (e.g., desktop) */
-        @media (min-width: 768px) {
-            .shortcut-info { display: block; }
-        }
-    </style>
       <!-- Google tag (gtag.js) -->
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-613KFM4J9H"></script>
       <script>
@@ -29,12 +12,117 @@ https://www.perplexity.ai/search/can-you-write-me-a-javascript-zpnNMZxPTqmGPd5Ts
         gtag('js', new Date());
       
         gtag('config', 'G-613KFM4J9H');
-      </script>
-
+      </script>    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settled</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .form-container { 
+            background-color: #ffffff; 
+            border-radius: 8px; 
+            padding: 20px; 
+            max-width: 600px; 
+            width: 100%;
+            box-shadow: none; 
+            border: 1px solid #ddd; 
+            text-align: center; 
+        }
+        .logo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 20px;
+        }
+        .payee { 
+            margin: 10px 0; 
+            padding-bottom: 10px;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            border-bottom: 1px solid #ddd; 
+            flex-wrap: wrap;
+        }
+        .payee:last-child {
+            border-bottom: none; 
+        }
+        .payee label, .payee input { 
+            margin: 5px; 
+        }
+        .payee label {
+            flex: 1 0 100px; 
+        }
+        .payee input[type="text"], .payee input[type="number"] { 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-shadow: none; 
+            flex: 2; 
+            max-width: 150px; 
+        }
+        .remove-button { 
+            margin-left: 10px; 
+            color: #e74c3c; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+        button, input[type="submit"] { 
+            background-color: #3498db; 
+            color: #fff; 
+            border: none; 
+            border-radius: 4px; 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            margin-top: 10px;
+            transition: background-color 0.3s;
+            box-shadow: none; 
+            margin: 5px; 
+        }
+        button:hover, input[type="submit"]:hover { 
+            background-color: #2980b9; 
+        }
+        .shortcut-info { 
+            display: none; 
+            margin-top: 10px; 
+            font-size: 0.9em; 
+            color: #666; 
+            text-align: center;
+        }
+        #resultDisplay {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            box-shadow: none; 
+        }
+        
+        @media (max-width: 600px) {
+            .payee {
+                flex-direction: column; 
+            }
+            .payee label, .payee input {
+                flex: 1 0 100%; 
+                max-width: none; 
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .shortcut-info { display: block; }
+        }
+    </style>
 </head>
 <body>
     <div class="form-container">
-        <h2>Transaction Input Form</h2>
+        <div class="logo">Settled</div>
         <form id="transactionForm">
             <div id="payeesContainer">
                 <div class="payee">
@@ -45,70 +133,22 @@ https://www.perplexity.ai/search/can-you-write-me-a-javascript-zpnNMZxPTqmGPd5Ts
                     <span class="remove-button" onclick="removePayee(this)">x</span>
                 </div>
             </div>
-            <button type="button" id="addPayee">Add Payee</button>
-            <input type="submit" value="Simplify Debts" />
+            <div>
+                <button type="button" id="addPayee">Add Payee</button>
+                <input type="submit" value="💸 Calculate 💸" />
+            </div>
         </form>
         <div id="resultDisplay"></div>
         <div class="shortcut-info">
             <p>Keyboard Shortcuts:</p>
-            <ul>
-                <li>Press "aa" to add a new payee.</li>
-                <li>Press "dd" to remove the most recent payee.</li>
-            </ul>
+            <p>Press "aa" to add a new payee.</p>
+            <p>Press "dd" to remove the most recent payee.</p>
         </div>
     </div>
     <script>
-        function simplifyDebts(transactions) {
-            const balances = {};
-
-            // Calculate net balance for each person
-            transactions.forEach(([person, amount]) => {
-                if (!balances[person]) balances[person] = 0;
-                balances[person] += amount;
-            });
-
-            const totalPaid = Object.values(balances).reduce((a, b) => a + b, 0);
-            const averagePaid = totalPaid / transactions.length;
-
-            // Calculate net balance after averaging
-            for (let person in balances) {
-                balances[person] -= averagePaid;
-            }
-
-            const creditors = [];
-            const debtors = [];
-
-            // Separate balances into creditors and debtors
-            for (let person in balances) {
-                if (balances[person] > 0) {
-                    creditors.push({ person, balance: balances[person] });
-                } else if (balances[person] < 0) {
-                    debtors.push({ person, balance: -balances[person] });
-                }
-            }
-
-            const simplifiedTransactions = [];
-
-            // Match debtors with creditors
-            while (debtors.length && creditors.length) {
-                const debtor = debtors[0];
-                const creditor = creditors[0];
-
-                const settledAmount = Math.min(debtor.balance, creditor.balance);
-
-                simplifiedTransactions.push([debtor.person, creditor.person, settledAmount]);
-
-                debtor.balance -= settledAmount;
-                creditor.balance -= settledAmount;
-
-                if (debtor.balance === 0) debtors.shift();
-                if (creditor.balance === 0) creditors.shift();
-            }
-
-            return simplifiedTransactions;
-        }
-
-        document.getElementById('addPayee').addEventListener('click', addPayee);
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('addPayee').addEventListener('click', addPayee);
+        });
 
         function addPayee() {
             const payeesContainer = document.getElementById('payeesContainer');
@@ -163,6 +203,56 @@ https://www.perplexity.ai/search/can-you-write-me-a-javascript-zpnNMZxPTqmGPd5Ts
                 ? result.map(res => `<p>${res[0]} pays $${res[2].toFixed(2)} to ${res[1]}</p>`).join('') 
                 : '<p>No debts to settle.</p>';
         });
+
+        function simplifyDebts(transactions) {
+            const balances = {};
+
+            // Calculate net balance for each person
+            transactions.forEach(([person, amount]) => {
+                if (!balances[person]) balances[person] = 0;
+                balances[person] += amount;
+            });
+
+            const totalPaid = Object.values(balances).reduce((a, b) => a + b, 0);
+            const averagePaid = totalPaid / transactions.length;
+
+            // Calculate net balance after averaging
+            for (let person in balances) {
+                balances[person] -= averagePaid;
+            }
+
+            const creditors = [];
+            const debtors = [];
+
+            // Separate balances into creditors and debtors
+            for (let person in balances) {
+                if (balances[person] > 0) {
+                    creditors.push({ person, balance: balances[person] });
+                } else if (balances[person] < 0) {
+                    debtors.push({ person, balance: -balances[person] });
+                }
+            }
+
+            const simplifiedTransactions = [];
+
+            // Match debtors with creditors
+            while (debtors.length && creditors.length) {
+                const debtor = debtors[0];
+                const creditor = creditors[0];
+
+                const settledAmount = Math.min(debtor.balance, creditor.balance);
+
+                simplifiedTransactions.push([debtor.person, creditor.person, settledAmount]);
+
+                debtor.balance -= settledAmount;
+                creditor.balance -= settledAmount;
+
+                if (debtor.balance === 0) debtors.shift();
+                if (creditor.balance === 0) creditors.shift();
+            }
+
+            return simplifiedTransactions;
+        }
 
         let keySequence = '';
 
