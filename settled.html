@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- ai generated
+https://www.perplexity.ai/search/can-you-write-me-a-javascript-zpnNMZxPTqmGPd5TsFJrbQ
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .form-container { margin: 20px; }
+        .payee { margin: 5px 0; display: flex; align-items: center; }
+        .remove-button { margin-left: 10px; color: red; cursor: pointer; }
+        .shortcut-info { display: none; margin-top: 10px; font-size: 0.9em; color: gray; }
+        
+        /* Show shortcut info on larger screens (e.g., desktop) */
+        @media (min-width: 768px) {
+            .shortcut-info { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Transaction Input Form</h2>
+        <form id="transactionForm">
+            <div id="payeesContainer">
+                <div class="payee">
+                    <label>Payee Name:</label>
+                    <input type="text" name="payeeName" required />
+                    <label>Amount Paid:</label>
+                    <input type="number" name="amount" value="0" min="0" />
+                    <span class="remove-button" onclick="removePayee(this)">x</span>
+                </div>
+            </div>
+            <button type="button" id="addPayee">Add Payee</button>
+            <input type="submit" value="Simplify Debts" />
+        </form>
+        <div id="resultDisplay"></div>
+        <div class="shortcut-info">
+            <p>Keyboard Shortcuts:</p>
+            <ul>
+                <li>Press "aa" to add a new payee.</li>
+                <li>Press "dd" to remove the most recent payee.</li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        function simplifyDebts(transactions) {
+            const balances = {};
+
+            // Calculate net balance for each person
+            transactions.forEach(([person, amount]) => {
+                if (!balances[person]) balances[person] = 0;
+                balances[person] += amount;
+            });
+
+            const totalPaid = Object.values(balances).reduce((a, b) => a + b, 0);
+            const averagePaid = totalPaid / transactions.length;
+
+            // Calculate net balance after averaging
+            for (let person in balances) {
+                balances[person] -= averagePaid;
+            }
+
+            const creditors = [];
+            const debtors = [];
+
+            // Separate balances into creditors and debtors
+            for (let person in balances) {
+                if (balances[person] > 0) {
+                    creditors.push({ person, balance: balances[person] });
+                } else if (balances[person] < 0) {
+                    debtors.push({ person, balance: -balances[person] });
+                }
+            }
+
+            const simplifiedTransactions = [];
+
+            // Match debtors with creditors
+            while (debtors.length && creditors.length) {
+                const debtor = debtors[0];
+                const creditor = creditors[0];
+
+                const settledAmount = Math.min(debtor.balance, creditor.balance);
+
+                simplifiedTransactions.push([debtor.person, creditor.person, settledAmount]);
+
+                debtor.balance -= settledAmount;
+                creditor.balance -= settledAmount;
+
+                if (debtor.balance === 0) debtors.shift();
+                if (creditor.balance === 0) creditors.shift();
+            }
+
+            return simplifiedTransactions;
+        }
+
+        document.getElementById('addPayee').addEventListener('click', addPayee);
+
+        function addPayee() {
+            const payeesContainer = document.getElementById('payeesContainer');
+            const newPayee = document.createElement('div');
+            newPayee.className = 'payee';
+            newPayee.innerHTML = `
+                <label>Payee Name:</label>
+                <input type="text" name="payeeName" required />
+                <label>Amount Paid:</label>
+                <input type="number" name="amount" value="0" min="0" />
+                <span class="remove-button" onclick="removePayee(this)">x</span>
+            `;
+            payeesContainer.appendChild(newPayee);
+            const allPayees = payeesContainer.getElementsByClassName('payee');
+            if (allPayees.length >= 10) {
+                document.getElementById('addPayee').disabled = true;
+                alert('Max payees reached.');
+            }
+        }
+
+        function removePayee(button) {
+            const payee = button.parentElement;
+            payee.remove();
+            document.getElementById('addPayee').disabled = false;
+        }
+
+        function removeLastPayee() {
+            const payeesContainer = document.getElementById('payeesContainer');
+            const payees = payeesContainer.getElementsByClassName('payee');
+            if (payees.length > 0) {
+                payees[payees.length - 1].remove();
+                document.getElementById('addPayee').disabled = false;
+            }
+        }
+
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const payees = [];
+            const payeeElements = document.querySelectorAll('.payee');
+            payeeElements.forEach(payeeElement => {
+                const payeeName = payeeElement.querySelector('input[name="payeeName"]').value;
+                const amount = parseFloat(payeeElement.querySelector('input[name="amount"]').value);
+                payees.push([payeeName, amount]);
+            });
+
+            // Simplify the debts
+            const result = simplifyDebts(payees);
+
+            // Show result on the page
+            const resultDisplay = document.getElementById('resultDisplay');
+            resultDisplay.innerHTML = result.length > 0 
+                ? result.map(res => `<p>${res[0]} pays $${res[2]} to ${res[1]}</p>`).join('') 
+                : '<p>No debts to settle.</p>';
+        });
+
+        let keySequence = '';
+
+        document.addEventListener('keydown', function(event) {
+            if (document.activeElement.tagName !== 'INPUT') {
+                keySequence += event.key.toLowerCase();
+                if (keySequence.endsWith('aa')) {
+                    addPayee();
+                    keySequence = ''; // Reset after action
+                } else if (keySequence.endsWith('dd')) {
+                    removeLastPayee();
+                    keySequence = ''; // Reset after action
+                }
+            }
+        });
+    </script>
+</body>
+</html>
