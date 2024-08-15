@@ -8,9 +8,11 @@ https://www.perplexity.ai/search/can-you-write-me-a-javascript-zpnNMZxPTqmGPd5Ts
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Form</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .form-container { margin: 20px; }
-        .payee { margin: 5px 0; display: flex; align-items: center; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .form-container { margin: 20px; max-width: 600px; padding: 10px; }
+        .payee { margin: 5px 0; display: flex; align-items: center; flex-wrap: wrap; }
+        .payee label, .payee input { margin: 5px 5px 5px 0; }
+        .payee input[type="text"], .payee input[type="number"] { flex: 1 1 auto; min-width: 100px; }
         .remove-button { margin-left: 10px; color: red; cursor: pointer; }
         .shortcut-info { display: none; margin-top: 10px; font-size: 0.9em; color: gray; }
         
