@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debt Settler App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .collapsible {
+            background-color: #f1f1f1;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .collapsible-button {
+            background-color: #e7e7e7;
+            color: #444;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .active, .collapsible-button:hover {
+            background-color: #ccc;
+        }
+        .content {
+            padding: 0 18px;
+            overflow: hidden;
+            background-color: #f9f9f9;
+        }
+        button {
+            margin: 10px 0;
+            padding: 5px 10px;
+        }
+        #results {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .payee-input, .transaction-input {
+            margin-bottom: 10px;
+        }
+        .transaction-input {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .transaction-input > * {
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+        .involved-payees {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .involved-payees label {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        #download-csv {
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #download-csv:hover {
+            background-color: #45a049;
+        }
+        .collapse-text {
+            font-size: 12px;
+            color: #666;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .collapsible-button {
+                font-size: 14px;
+            }
+            .transaction-input {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .transaction-input > * {
+                width: 100%;
+                margin-right: 0;
+            }
+            .transaction-input select,
+            .transaction-input button {
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Debt Settler App</h1>
+
+    <div class="collapsible">
+        <button class="collapsible-button active">
+            Add Payees
+            <span class="collapse-text">Click/tap to collapse</span>
+        </button>
+        <div class="content" style="display: block;">
+            <div id="payees-container">
+                <!-- Payee input fields will be dynamically added here -->
+            </div>
+            <button id="add-payee">Add Payee</button>
+        </div>
+    </div>
+
+    <div class="collapsible">
+        <button class="collapsible-button active">
+            Transactions
+            <span class="collapse-text">Click/tap to collapse</span>
+        </button>
+        <div class="content" style="display: block;">
+            <div id="transactions-container">
+                <!-- Transaction input fields will be dynamically added here -->
+            </div>
+            <button id="add-transaction">Add Transaction</button>
+            <button id="download-csv">Download CSV</button>
+        </div>
+    </div>
+
+    <div class="collapsible">
+        <button class="collapsible-button active">
+            Debt Calculation
+            <span class="collapse-text">Click/tap to collapse</span>
+        </button>
+        <div class="content" style="display: block;">
+            <button id="calculate-debts">Calculate Debts</button>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        const MAX_PAYEES = 10;
+        let payees = [];
+        let transactions = [];
+
+        const payeesContainer = document.getElementById('payees-container');
+        const transactionsContainer = document.getElementById('transactions-container');
+        const addPayeeButton = document.getElementById('add-payee');
+        const addTransactionButton = document.getElementById('add-transaction');
+        const calculateDebtsButton = document.getElementById('calculate-debts');
+        const resultsDiv = document.getElementById('results');
+        const downloadCsvButton = document.getElementById('download-csv');
+
+        addPayeeButton.addEventListener('click', addPayee);
+        addTransactionButton.addEventListener('click', addTransaction);
+        calculateDebtsButton.addEventListener('click', calculateDebts);
+        downloadCsvButton.addEventListener('click', downloadCSV);
+
+        // Collapsible functionality
+        const collapsibleButtons = document.querySelectorAll('.collapsible-button');
+        collapsibleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                    this.querySelector('.collapse-text').textContent = "Click/tap to expand";
+                } else {
+                    content.style.display = "block";
+                    this.querySelector('.collapse-text').textContent = "Click/tap to collapse";
+                }
+            });
+        });
+
+        function addPayee() {
+            if (payees.length >= MAX_PAYEES) {
+                alert('Maximum number of payees reached');
+                return;
+            }
+
+            const payeeInput = document.createElement('div');
+            payeeInput.className = 'payee-input';
+            payeeInput.innerHTML = `
+                <input type="text" placeholder="Payee name" onchange="updatePayeeName(this)">
+                <button onclick="removePayee(this)">Remove</button>
+            `;
+            payeesContainer.appendChild(payeeInput);
+            payees.push('');
+            updateTransactions();
+        }
+
+        function updatePayeeName(input) {
+            const index = Array.from(payeesContainer.children).indexOf(input.parentElement);
+            payees[index] = input.value;
+            updateTransactions();
+        }
+
+        function removePayee(button) {
+            const payeeInput = button.parentElement;
+            const index = Array.from(payeesContainer.children).indexOf(payeeInput);
+            payees.splice(index, 1);
+            payeeInput.remove();
+            updateTransactions();
+        }
+
+        function addTransaction() {
+            const transactionInput = document.createElement('div');
+            transactionInput.className = 'transaction-input';
+            transactionInput.innerHTML = `
+                <input type="text" placeholder="Transaction name">
+                <input type="number" placeholder="Amount" step="0.01" min="0" oninput="validateAmount(this)">
+                <select>
+                    ${payees.map((payee, index) => `<option value="${index}">${payee}</option>`).join('')}
+                </select>
+                <button onclick="removeTransaction(this)">Remove</button>
+                <div class="involved-payees">
+                    ${payees.map((payee, index) => `
+                        <label>
+                            <input type="checkbox" value="${index}" checked>
+                            ${payee}
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            transactionsContainer.appendChild(transactionInput);
+            transactions.push({});
+        }
+
+        function validateAmount(input) {
+            if (input.value < 0) {
+                input.value = '';
+            }
+        }
+
+        function removeTransaction(button) {
+            const transactionInput = button.parentElement;
+            const index = Array.from(transactionsContainer.children).indexOf(transactionInput);
+            transactions.splice(index, 1);
+            transactionInput.remove();
+        }
+
+        function updateTransactions() {
+            transactionsContainer.innerHTML = '';
+            transactions = [];
+            addTransactionButton.disabled = payees.length === 0;
+
+            // Add new transaction if there are payees
+            if (payees.length > 0) {
+                addTransaction();
+            }
+        }
+
+        function calculateDebts() {
+            const debts = {};
+            payees.forEach(payee => debts[payee] = 0);
+
+            Array.from(transactionsContainer.children).forEach(transactionInput => {
+                const name = transactionInput.querySelector('input[type="text"]').value;
+                const amount = parseFloat(transactionInput.querySelector('input[type="number"]').value);
+                const payer = payees[transactionInput.querySelector('select').value];
+                const involvedPayees = Array.from(transactionInput.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(checkbox => payees[checkbox.value]);
+
+                if (name && !isNaN(amount) && payer && involvedPayees.length > 0) {
+                    const splitAmount = amount / involvedPayees.length;
+
+                    debts[payer] += amount;
+                    involvedPayees.forEach(payee => {
+                        debts[payee] -= splitAmount;
+                    });
+                }
+            });
+
+            const settlements = [];
+            const debtors = Object.entries(debts).filter(([_, amount]) => amount < 0);
+            const creditors = Object.entries(debts).filter(([_, amount]) => amount > 0);
+
+            debtors.forEach(([debtor, debtAmount]) => {
+                creditors.forEach(([creditor, creditAmount]) => {
+                    if (debtAmount < 0 && creditAmount > 0) {
+                        const settlementAmount = Math.min(-debtAmount, creditAmount);
+                        settlements.push(`${debtor} owes ${creditor} $${settlementAmount.toFixed(2)}`);
+                        debtAmount += settlementAmount;
+                        creditAmount -= settlementAmount;
+                    }
+                });
+            });
+
+            resultsDiv.innerHTML = settlements.length > 0 ? settlements.join('<br>') : 'No debts to settle.';
+        }
+
+        function generateGUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0,
+                    v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function downloadCSV() {
+            const csvContent = generateCSV();
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'transactions.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        function generateCSV() {
+            let csvContent = 'GUID,Transaction Name,Amount,Payer,Involved Payees\n';
+            
+            Array.from(transactionsContainer.children).forEach(transactionInput => {
+                const guid = generateGUID();
+                const name = transactionInput.querySelector('input[type="text"]').value;
+                const amount = transactionInput.querySelector('input[type="number"]').value;
+                const payer = payees[transactionInput.querySelector('select').value];
+                const involvedPayees = Array.from(transactionInput.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(checkbox => payees[checkbox.value])
+                    .join(', ');
+
+                if (name && amount && payer) {
+                    csvContent += `"${guid}","${name}",${amount},"${payer}","${involvedPayees}"\n`;
+                }
+            });
+
+            return csvContent;
+        }
+    </script>
+</body>
+<!-- https://www.perplexity.ai/search/i-want-to-create-a-debt-settli-cYNEAaXnQnaakVHWPQY2xA -->
+</html>
