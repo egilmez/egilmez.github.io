@@ -654,8 +654,14 @@
   (() => {
     'use strict';
 
-    // ── CORS PROXY ────────────────────────────────────────
-    const CORS = 'https://corsproxy.io/?';
+    // ── CORS PROXIES (tried in order until one works) ─────
+    // User-Agent is a forbidden header in browsers; omit it to avoid
+    // triggering a CORS preflight that some proxies reject.
+    const PROXIES = [
+      url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      url => `https://corsproxy.org/?${encodeURIComponent(url)}`,
+    ];
 
     // ── STATE ─────────────────────────────────────────────
     const state = {
@@ -760,17 +766,34 @@
       const apiUrl = buildApiUrl(query, page);
       if (!apiUrl) throw new Error('Unsupported URL type');
 
-      const proxied = CORS + encodeURIComponent(apiUrl);
-      const headers = { 'User-Agent': 'RecordStoreUI/1.0' };
+      // Only send Authorization header when a token is provided.
+      // Avoid any custom headers for anonymous requests to prevent
+      // CORS preflight failures (esp. on iOS Safari).
+      const headers = {};
       if (state.token) headers['Authorization'] = `Discogs token=${state.token}`;
 
-      const res = await fetch(proxied, { headers });
-      if (res.status === 404) throw new Error('Not found — check the URL and try again.');
-      if (res.status === 401 || res.status === 403) throw new Error('Access denied. Try adding a personal token.');
-      if (res.status === 429) throw new Error('Rate limited by Discogs. Wait a moment and try again.');
-      if (!res.ok) throw new Error(`Request failed (HTTP ${res.status}).`);
-
-      return res.json();
+      let lastErr = null;
+      for (const makeUrl of PROXIES) {
+        try {
+          const res = await fetch(makeUrl(apiUrl), { headers });
+          if (res.status === 404) throw new Error('Not found — check the URL and try again.');
+          if (res.status === 401 || res.status === 403) throw new Error('Access denied. Try adding a personal token.');
+          if (res.status === 429) throw new Error('Rate limited by Discogs. Wait a moment and try again.');
+          if (!res.ok) throw new Error(`Request failed (HTTP ${res.status}).`);
+          return await res.json();
+        } catch (err) {
+          // Re-throw API-level errors immediately; only retry on network failures
+          if (err.message && (
+            err.message.startsWith('Not found') ||
+            err.message.startsWith('Access denied') ||
+            err.message.startsWith('Rate limited') ||
+            err.message.startsWith('Request failed')
+          )) throw err;
+          lastErr = err;
+          // Continue to next proxy
+        }
+      }
+      throw new Error(`Network error — all proxies failed. Check your connection and try again. (${lastErr && lastErr.message})`);
     }
 
     // ── NORMALISE ─────────────────────────────────────────
@@ -944,7 +967,10 @@
         const nextPage = state.pagination.page + 1;
         const data = await fetchPage(state.query, nextPage);
         const raw = data.listings || [];
-        const normalized = raw.map(normalizeListing);
+        const normalized = raw.reduce((acc, item) => {
+          try { acc.push(normalizeListing(item)); } catch (_) { /* skip malformed listing */ }
+          return acc;
+        }, []);
         state.listings.push(...normalized);
 
         const pg = data.pagination || {};
