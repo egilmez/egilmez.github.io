@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-613KFM4J9H"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-613KFM4J9H');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Record Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:           #0d0d0d;
+      --surface:      #161616;
+      --surface2:     #1e1e1e;
+      --border:       #2e2e2e;
+      --accent:       #d4a843;
+      --accent-dark:  #a07820;
+      --accent-glow:  rgba(212, 168, 67, 0.18);
+      --text:         #e8e0d0;
+      --text-muted:   #7a7060;
+      --green:        #7ec8a0;
+      --red:          #c87e7e;
+      --sk-a:         #1a1a1a;
+      --sk-b:         #252525;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ── TOP BAR ─────────────────────────────────────────── */
+    #top-bar {
+      flex-shrink: 0;
+      padding: 10px 16px 8px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    #store-title {
+      font-family: 'Special Elite', cursive;
+      color: var(--accent);
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      opacity: 0.85;
+    }
+
+    #url-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #discogs-url {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 11px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      border-radius: 2px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #discogs-url:focus { border-color: var(--accent); }
+    #discogs-url::placeholder { color: var(--text-muted); }
+
+    #load-btn {
+      background: var(--accent);
+      color: #0d0d0d;
+      border: none;
+      padding: 7px 18px;
+      font-family: 'Special Elite', cursive;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border-radius: 2px;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    #load-btn:hover { background: var(--accent-dark); }
+    #load-btn:disabled { background: #3a3020; color: #6a5a30; cursor: default; }
+
+    #token-toggle {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.7rem;
+      cursor: pointer;
+      margin-top: 4px;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    #token-toggle:hover { color: var(--text); }
+
+    #token-row {
+      margin-top: 6px;
+    }
+    #token-row.hidden { display: none; }
+
+    #discogs-token {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 11px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      border-radius: 2px;
+      outline: none;
+    }
+    #discogs-token:focus { border-color: var(--accent); }
+    #discogs-token::placeholder { color: var(--text-muted); }
+
+    /* ── STAGE ───────────────────────────────────────────── */
+    #stage {
+      flex: 1;
+      display: flex;
+      align-items: stretch;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ── NAV ARROWS ──────────────────────────────────────── */
+    .nav-arrow {
+      width: 52px;
+      flex-shrink: 0;
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-arrow:hover { background: var(--accent-glow); }
+    .nav-arrow:disabled { color: var(--border); cursor: default; background: transparent; }
+
+    /* ── CENTER RECORD DISPLAY ───────────────────────────── */
+    #record-display {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      padding: 16px;
+      gap: 14px;
+      position: relative;
+      cursor: grab;
+    }
+    #record-display:active { cursor: grabbing; }
+
+    #record-jacket {
+      position: relative;
+      width: min(55vh, 420px);
+      aspect-ratio: 1;
+      border: 2px solid var(--border);
+      box-shadow: 0 0 60px var(--accent-glow);
+      overflow: hidden;
+      background: var(--surface2);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    #album-art {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.25s ease;
+    }
+    #album-art.fading { opacity: 0; }
+
+    #art-skeleton {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--sk-a) 25%, var(--sk-b) 50%, var(--sk-a) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    #art-skeleton.hidden { display: none; }
+
+    #no-image-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+    #no-image-placeholder svg { opacity: 0.3; }
+    #no-image-placeholder.hidden { display: none; }
+
+    #record-caption {
+      text-align: center;
+      max-width: min(55vh, 420px);
+      width: 100%;
+    }
+    #caption-title {
+      font-family: 'Special Elite', cursive;
+      font-size: 1.1rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #caption-artist {
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── METADATA PANEL ──────────────────────────────────── */
+    #metadata-panel {
+      width: 270px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #meta-inner {
+      padding: 16px 14px;
+      flex: 1;
+    }
+
+    #meta-skeleton {
+      padding: 16px 14px;
+    }
+    #meta-skeleton .sk-line {
+      height: 12px;
+      border-radius: 2px;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, var(--sk-a) 25%, var(--sk-b) 50%, var(--sk-a) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    #meta-skeleton .sk-line:nth-child(1) { width: 80%; }
+    #meta-skeleton .sk-line:nth-child(2) { width: 60%; }
+    #meta-skeleton .sk-line:nth-child(3) { width: 90%; height: 8px; }
+    #meta-skeleton .sk-line:nth-child(4) { width: 70%; height: 8px; }
+    #meta-skeleton .sk-line:nth-child(5) { width: 55%; height: 8px; }
+    #meta-skeleton .sk-line:nth-child(6) { width: 75%; height: 8px; }
+    #meta-skeleton.hidden { display: none; }
+
+    #meta-content { display: flex; flex-direction: column; gap: 0; }
+    #meta-content.hidden { display: none; }
+
+    #meta-price-block {
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    #meta-price {
+      font-family: 'Special Elite', cursive;
+      font-size: 1.6rem;
+      color: var(--green);
+      line-height: 1;
+    }
+    #meta-offers {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 5px 0;
+      border-bottom: 1px solid #1e1e1e;
+      gap: 8px;
+    }
+    .meta-row:last-of-type { border-bottom: none; }
+    .meta-label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      flex-shrink: 0;
+    }
+    .meta-val {
+      font-size: 0.78rem;
+      color: var(--text);
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .condition-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 2px;
+      font-size: 0.72rem;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+    }
+    .cond-M, .cond-NM  { background: #1a3a2a; color: #7ec8a0; }
+    .cond-VGP          { background: #2a2a1a; color: #c8c07e; }
+    .cond-VG           { background: #2a2010; color: #c8a07e; }
+    .cond-GP, .cond-G,
+    .cond-F, .cond-P   { background: #3a1a1a; color: #c87e7e; }
+
+    #meta-seller-block {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    #meta-seller-name {
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+    #meta-seller-rating {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    #meta-ships {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    #meta-comments {
+      margin-top: 12px;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      word-break: break-word;
+      max-height: 80px;
+      overflow-y: auto;
+    }
+    #meta-comments.hidden { display: none; }
+
+    #add-to-cart-btn {
+      margin-top: 14px;
+      width: 100%;
+      padding: 11px;
+      background: var(--accent);
+      color: #0d0d0d;
+      border: none;
+      font-family: 'Special Elite', cursive;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background 0.15s;
+    }
+    #add-to-cart-btn:hover { background: var(--accent-dark); }
+
+    /* ── TOUCH NAV ROW (mobile only) ─────────────────────── */
+    #touch-nav-row {
+      display: none;
+      justify-content: center;
+      gap: 48px;
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .touch-nav-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 8px 24px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .touch-nav-btn:active { background: var(--accent-glow); }
+
+    /* ── BOTTOM BAR ──────────────────────────────────────── */
+    #bottom-bar {
+      flex-shrink: 0;
+      padding: 6px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    #pagination-counter {
+      font-family: 'Special Elite', cursive;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    #loading-indicator {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    #loading-indicator.hidden { display: none; }
+
+    #error-msg {
+      font-size: 0.75rem;
+      color: var(--red);
+      flex: 1;
+      text-align: right;
+    }
+    #error-msg.hidden { display: none; }
+
+    /* ── EMPTY STATE ─────────────────────────────────────── */
+    #empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 32px;
+    }
+    #empty-state.hidden { display: none; }
+    #empty-state svg { opacity: 0.2; }
+    #empty-state h2 {
+      font-family: 'Special Elite', cursive;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      font-weight: normal;
+    }
+    #empty-state p {
+      font-size: 0.78rem;
+      max-width: 320px;
+      line-height: 1.6;
+    }
+    #empty-state code {
+      background: var(--surface2);
+      padding: 1px 5px;
+      border-radius: 2px;
+      font-size: 0.72rem;
+      color: var(--accent);
+    }
+
+    /* ── SHIMMER ANIMATION ───────────────────────────────── */
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── SCROLLBAR ───────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── MOBILE ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      body { height: auto; overflow: auto; }
+
+      #stage {
+        flex-direction: column;
+        align-items: stretch;
+        overflow: visible;
+        min-height: 0;
+      }
+
+      #prev-btn, #next-btn { display: none; }
+
+      #record-display { padding: 12px 16px 8px; }
+
+      #record-jacket {
+        width: min(88vw, 340px);
+        margin: 0 auto;
+      }
+
+      #record-caption {
+        max-width: min(88vw, 340px);
+      }
+
+      #metadata-panel {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--border);
+        max-height: none;
+      }
+
+      #touch-nav-row { display: flex; }
+
+      #meta-comments { max-height: none; }
+    }
+
+    @media (max-width: 480px) {
+      #store-title { font-size: 0.85rem; }
+      #discogs-url { font-size: 0.75rem; }
+      #caption-title { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header id="top-bar">
+    <div id="store-title">&#9835; Record Store</div>
+    <div id="url-row">
+      <input id="discogs-url" type="url"
+        placeholder="Paste a Discogs seller or artist URL…"
+        autocomplete="off" spellcheck="false">
+      <button id="load-btn">Load</button>
+    </div>
+    <button id="token-toggle">+ use personal token (higher rate limits)</button>
+    <div id="token-row" class="hidden">
+      <input id="discogs-token" type="password"
+        placeholder="Discogs personal access token (optional)"
+        autocomplete="off">
+    </div>
+  </header>
+
+  <!-- STAGE -->
+  <div id="stage">
+
+    <button class="nav-arrow" id="prev-btn" disabled aria-label="Previous">&#8592;</button>
+
+    <!-- EMPTY STATE (shown on first load) -->
+    <div id="empty-state">
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="36" cy="36" r="34" stroke="#d4a843" stroke-width="2"/>
+        <circle cx="36" cy="36" r="22" stroke="#d4a843" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <circle cx="36" cy="36" r="5" fill="#d4a843" opacity="0.5"/>
+      </svg>
+      <h2>Drop the needle</h2>
+      <p>Paste a Discogs URL above to start browsing.<br>
+        Try a seller profile:<br>
+        <code>discogs.com/seller/USERNAME/profile</code><br>
+        or an artist marketplace:<br>
+        <code>discogs.com/sell/list?artist_id=…</code>
+      </p>
+    </div>
+
+    <!-- RECORD DISPLAY (hidden until loaded) -->
+    <div id="record-display" class="hidden">
+      <div id="record-jacket">
+        <img id="album-art" src="" alt="Album cover">
+        <div id="art-skeleton"></div>
+        <div id="no-image-placeholder" class="hidden">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="22" stroke="#d4a843" stroke-width="1.5"/>
+            <circle cx="24" cy="24" r="3" fill="#d4a843"/>
+          </svg>
+          <span>No image</span>
+        </div>
+      </div>
+      <div id="record-caption">
+        <div id="caption-title"></div>
+        <div id="caption-artist"></div>
+      </div>
+    </div>
+
+    <button class="nav-arrow" id="next-btn" disabled aria-label="Next">&#8594;</button>
+
+    <!-- METADATA PANEL -->
+    <aside id="metadata-panel">
+      <div id="meta-inner">
+
+        <div id="meta-skeleton" class="hidden">
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+        </div>
+
+        <div id="meta-content" class="hidden">
+          <div id="meta-price-block">
+            <div id="meta-price">—</div>
+            <div id="meta-offers"></div>
+          </div>
+
+          <div class="meta-row">
+            <span class="meta-label">Media</span>
+            <span class="meta-val" id="meta-condition"></span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Sleeve</span>
+            <span class="meta-val" id="meta-sleeve"></span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Year</span>
+            <span class="meta-val" id="meta-year"></span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Label</span>
+            <span class="meta-val" id="meta-label-val"></span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Format</span>
+            <span class="meta-val" id="meta-format"></span>
+          </div>
+
+          <div id="meta-seller-block">
+            <div id="meta-seller-name"></div>
+            <div id="meta-seller-rating"></div>
+            <div id="meta-ships"></div>
+          </div>
+
+          <p id="meta-comments" class="hidden"></p>
+
+          <button id="add-to-cart-btn">View on Discogs ↗</button>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- TOUCH NAV (mobile) -->
+  <div id="touch-nav-row">
+    <button class="touch-nav-btn" id="touch-prev">&#8592;</button>
+    <button class="touch-nav-btn" id="touch-next">&#8594;</button>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <footer id="bottom-bar">
+    <span id="pagination-counter">— / —</span>
+    <span id="loading-indicator" class="hidden">loading…</span>
+    <span id="error-msg" class="hidden"></span>
+  </footer>
+
+  <script>
+  (() => {
+    'use strict';
+
+    // ── CORS PROXY ────────────────────────────────────────
+    const CORS = 'https://corsproxy.io/?';
+
+    // ── STATE ─────────────────────────────────────────────
+    const state = {
+      listings: [],
+      currentIndex: -1,
+      pagination: { page: 0, pages: 1, totalItems: 0 },
+      loading: false,
+      query: null,
+      token: ''
+    };
+
+    // ── DOM REFS ──────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    const urlInput      = $('discogs-url');
+    const tokenInput    = $('discogs-token');
+    const tokenToggle   = $('token-toggle');
+    const tokenRow      = $('token-row');
+    const loadBtn       = $('load-btn');
+    const prevBtn       = $('prev-btn');
+    const nextBtn       = $('next-btn');
+    const touchPrev     = $('touch-prev');
+    const touchNext     = $('touch-next');
+    const emptyState    = $('empty-state');
+    const recordDisplay = $('record-display');
+    const albumArt      = $('album-art');
+    const artSkeleton   = $('art-skeleton');
+    const noImage       = $('no-image-placeholder');
+    const captionTitle  = $('caption-title');
+    const captionArtist = $('caption-artist');
+    const metaPanel     = $('metadata-panel');
+    const metaSkeleton  = $('meta-skeleton');
+    const metaContent   = $('meta-content');
+    const metaPrice     = $('meta-price');
+    const metaOffers    = $('meta-offers');
+    const metaCondition = $('meta-condition');
+    const metaSleeve    = $('meta-sleeve');
+    const metaYear      = $('meta-year');
+    const metaLabelVal  = $('meta-label-val');
+    const metaFormat    = $('meta-format');
+    const metaSellerName   = $('meta-seller-name');
+    const metaSellerRating = $('meta-seller-rating');
+    const metaShips     = $('meta-ships');
+    const metaComments  = $('meta-comments');
+    const addToCartBtn  = $('add-to-cart-btn');
+    const paginationCtr = $('pagination-counter');
+    const loadingInd    = $('loading-indicator');
+    const errorMsg      = $('error-msg');
+
+    // ── TOKEN TOGGLE ──────────────────────────────────────
+    tokenToggle.addEventListener('click', () => {
+      tokenRow.classList.toggle('hidden');
+      tokenToggle.textContent = tokenRow.classList.contains('hidden')
+        ? '+ use personal token (higher rate limits)'
+        : '− hide token';
+    });
+
+    // ── URL PARSING ───────────────────────────────────────
+    function parseDiscogsUrl(raw) {
+      let url = raw.trim();
+      if (!url) return null;
+
+      // seller: /seller/USERNAME/profile
+      const seller = url.match(/discogs\.com\/seller\/([^/?#\s]+)/);
+      if (seller) return { type: 'seller', username: seller[1] };
+
+      // artist marketplace: ?artist_id=123
+      const artist = url.match(/[?&]artist_id=(\d+)/);
+      if (artist) return { type: 'artist', artistId: artist[1] };
+
+      // release marketplace: ?release_id=123 or /sell/release/123
+      const releaseQ = url.match(/[?&]release_id=(\d+)/);
+      if (releaseQ) return { type: 'release', releaseId: releaseQ[1] };
+      const releaseP = url.match(/\/sell\/release\/(\d+)/);
+      if (releaseP) return { type: 'release', releaseId: releaseP[1] };
+
+      // label: ?label_id=123
+      const label = url.match(/[?&]label_id=(\d+)/);
+      if (label) return { type: 'label', labelId: label[1] };
+
+      return null;
+    }
+
+    function buildApiUrl(query, page) {
+      const base = 'https://api.discogs.com';
+      if (query.type === 'seller') {
+        return `${base}/users/${encodeURIComponent(query.username)}/inventory?status=For+Sale&sort=listed&sort_order=desc&per_page=100&page=${page}`;
+      }
+      if (query.type === 'artist') {
+        return `${base}/marketplace/search?artist_id=${query.artistId}&per_page=50&page=${page}`;
+      }
+      if (query.type === 'release') {
+        return `${base}/marketplace/search?release_id=${query.releaseId}&per_page=50&page=${page}`;
+      }
+      if (query.type === 'label') {
+        return `${base}/marketplace/search?label_id=${query.labelId}&per_page=50&page=${page}`;
+      }
+      return null;
+    }
+
+    // ── API FETCH ─────────────────────────────────────────
+    async function fetchPage(query, page) {
+      const apiUrl = buildApiUrl(query, page);
+      if (!apiUrl) throw new Error('Unsupported URL type');
+
+      const proxied = CORS + encodeURIComponent(apiUrl);
+      const headers = { 'User-Agent': 'RecordStoreUI/1.0' };
+      if (state.token) headers['Authorization'] = `Discogs token=${state.token}`;
+
+      const res = await fetch(proxied, { headers });
+      if (res.status === 404) throw new Error('Not found — check the URL and try again.');
+      if (res.status === 401 || res.status === 403) throw new Error('Access denied. Try adding a personal token.');
+      if (res.status === 429) throw new Error('Rate limited by Discogs. Wait a moment and try again.');
+      if (!res.ok) throw new Error(`Request failed (HTTP ${res.status}).`);
+
+      return res.json();
+    }
+
+    // ── NORMALISE ─────────────────────────────────────────
+    // Both /inventory and /marketplace/search return `listings[]`
+    // but with different field shapes. Normalise to a common object.
+    function normalizeListing(raw) {
+      // Inventory response shape
+      if (raw.release && raw.price) {
+        const r = raw.release;
+        const images = (r.images && r.images.length) ? r.images : [];
+        const img = images.find(i => i.type === 'primary') || images[0];
+        return {
+          id: raw.id,
+          title: r.title || '(Unknown)',
+          artist: r.artist || r.description || '',
+          year: r.year || '',
+          label: Array.isArray(r.label) ? r.label.join(', ') : (r.label || ''),
+          format: Array.isArray(r.format) ? r.format.join(', ') : (r.format || ''),
+          imageUrl: img ? (img.uri || img.resource_url || '') : '',
+          price: raw.price ? `${raw.price.currency} ${parseFloat(raw.price.value).toFixed(2)}` : '—',
+          allowOffers: raw.allow_offers,
+          condition: raw.condition || '',
+          sleeveCondition: raw.sleeve_condition || '',
+          shipsFrom: raw.ships_from || '',
+          sellerName: raw.seller ? raw.seller.username : '',
+          sellerRating: raw.seller && raw.seller.stats ? raw.seller.stats.rating : null,
+          sellerFeedback: raw.seller && raw.seller.stats ? raw.seller.stats.total : null,
+          comments: raw.comments || '',
+          listingUrl: raw.uri
+            ? (raw.uri.startsWith('http') ? raw.uri : `https://www.discogs.com${raw.uri}`)
+            : `https://www.discogs.com/sell/item/${raw.id}`
+        };
+      }
+
+      // Marketplace search shape
+      const r = raw.release || {};
+      const stats = raw.stats || {};
+      const seller = raw.seller || {};
+      const images = (r.images && r.images.length) ? r.images : [];
+      const img = images.find(i => i.type === 'primary') || images[0];
+      return {
+        id: raw.id,
+        title: r.title || raw.title || '(Unknown)',
+        artist: (r.artists && r.artists.length) ? r.artists.map(a => a.name).join(', ') : (raw.artist || ''),
+        year: r.year || raw.year || '',
+        label: (r.labels && r.labels.length) ? r.labels.map(l => l.name).join(', ') : '',
+        format: (r.formats && r.formats.length) ? r.formats.map(f => f.name).join(', ') : '',
+        imageUrl: img ? (img.uri || img.resource_url || '') : (r.thumb || ''),
+        price: raw.price ? `${raw.price.currency} ${parseFloat(raw.price.value).toFixed(2)}` : '—',
+        allowOffers: raw.allow_offers,
+        condition: raw.condition || '',
+        sleeveCondition: raw.sleeve_condition || '',
+        shipsFrom: raw.ships_from || seller.ships_from || '',
+        sellerName: seller.username || '',
+        sellerRating: seller.stats ? seller.stats.rating : (stats.user ? stats.user.rating : null),
+        sellerFeedback: seller.stats ? seller.stats.total : null,
+        comments: raw.comments || '',
+        listingUrl: raw.uri
+          ? (raw.uri.startsWith('http') ? raw.uri : `https://www.discogs.com${raw.uri}`)
+          : `https://www.discogs.com/sell/item/${raw.id}`
+      };
+    }
+
+    // ── CONDITION BADGE ───────────────────────────────────
+    function conditionBadge(cond) {
+      if (!cond) return '<span class="meta-val">—</span>';
+      const abbr = cond.replace(/[^A-Za-z+]/g, '').replace('Mint', 'M').replace('VeryGood', 'VG').replace('Good', 'G').replace('Fair', 'F').replace('Poor', 'P');
+      const cls = abbr.startsWith('NM') || abbr === 'M' ? 'cond-NM'
+                : abbr.startsWith('VGP') || abbr === 'VG+' ? 'cond-VGP'
+                : abbr.startsWith('VG') ? 'cond-VG'
+                : 'cond-GP';
+      return `<span class="condition-badge ${cls}">${cond}</span>`;
+    }
+
+    // ── RENDER ────────────────────────────────────────────
+    function render() {
+      const listing = state.listings[state.currentIndex];
+      if (!listing) return;
+
+      // Caption
+      captionTitle.textContent = listing.title;
+      captionArtist.textContent = listing.artist;
+
+      // Album art — cross-fade
+      albumArt.classList.add('fading');
+      artSkeleton.classList.add('hidden');
+      noImage.classList.add('hidden');
+      albumArt.style.display = 'block';
+
+      setTimeout(() => {
+        if (listing.imageUrl) {
+          albumArt.src = listing.imageUrl;
+          albumArt.onload  = () => albumArt.classList.remove('fading');
+          albumArt.onerror = () => {
+            albumArt.style.display = 'none';
+            noImage.classList.remove('hidden');
+          };
+        } else {
+          albumArt.style.display = 'none';
+          albumArt.classList.remove('fading');
+          noImage.classList.remove('hidden');
+        }
+      }, 80);
+
+      // Metadata
+      metaPrice.textContent = listing.price;
+      metaOffers.textContent = listing.allowOffers ? 'Offers accepted' : '';
+      metaCondition.innerHTML = conditionBadge(listing.condition);
+      metaSleeve.innerHTML = conditionBadge(listing.sleeveCondition);
+      metaYear.textContent = listing.year || '—';
+      metaLabelVal.textContent = listing.label || '—';
+      metaFormat.textContent = listing.format || '—';
+
+      metaSellerName.textContent = listing.sellerName || '—';
+      if (listing.sellerRating != null) {
+        const stars = '★'.repeat(Math.round(listing.sellerRating / 20));
+        metaSellerRating.textContent = `${listing.sellerRating}% (${listing.sellerFeedback || '?'} ratings)`;
+      } else {
+        metaSellerRating.textContent = '';
+      }
+      metaShips.textContent = listing.shipsFrom ? `Ships from ${listing.shipsFrom}` : '';
+
+      if (listing.comments) {
+        metaComments.textContent = listing.comments;
+        metaComments.classList.remove('hidden');
+      } else {
+        metaComments.classList.add('hidden');
+      }
+
+      addToCartBtn.onclick = () => window.open(listing.listingUrl, '_blank', 'noopener,noreferrer');
+
+      // Pagination
+      const total = state.pagination.totalItems || state.listings.length;
+      paginationCtr.textContent = `${state.currentIndex + 1} / ${total}`;
+
+      // Nav buttons
+      prevBtn.disabled = state.currentIndex <= 0;
+      nextBtn.disabled = state.currentIndex >= state.listings.length - 1 && state.pagination.page >= state.pagination.pages;
+      touchPrev.disabled = prevBtn.disabled;
+      touchNext.disabled = nextBtn.disabled;
+    }
+
+    // ── NAVIGATE ──────────────────────────────────────────
+    function navigate(delta) {
+      if (state.loading) return;
+      const next = state.currentIndex + delta;
+      if (next < 0) return;
+      if (next >= state.listings.length) {
+        // Need more pages
+        if (state.pagination.page < state.pagination.pages) {
+          loadNextPage();
+        }
+        return;
+      }
+      state.currentIndex = next;
+      render();
+
+      // Prefetch next page when within 10 of the end
+      if (state.listings.length - next < 10 && state.pagination.page < state.pagination.pages) {
+        loadNextPage();
+      }
+    }
+
+    // ── LOAD ──────────────────────────────────────────────
+    async function loadNextPage() {
+      if (state.loading || state.pagination.page >= state.pagination.pages) return;
+      state.loading = true;
+      loadingInd.classList.remove('hidden');
+
+      try {
+        const nextPage = state.pagination.page + 1;
+        const data = await fetchPage(state.query, nextPage);
+        const raw = data.listings || [];
+        const normalized = raw.map(normalizeListing);
+        state.listings.push(...normalized);
+
+        const pg = data.pagination || {};
+        state.pagination.page  = pg.page  || nextPage;
+        state.pagination.pages = pg.pages || 1;
+        state.pagination.totalItems = pg.items || state.listings.length;
+
+        // If navigating forward was pending
+        if (state.currentIndex < 0 && state.listings.length > 0) {
+          state.currentIndex = 0;
+          showRecordDisplay();
+          render();
+        } else {
+          render();
+        }
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        state.loading = false;
+        loadingInd.classList.add('hidden');
+      }
+    }
+
+    async function startLoad() {
+      const raw = urlInput.value.trim();
+      if (!raw) return;
+
+      const query = parseDiscogsUrl(raw);
+      if (!query) {
+        showError('Could not parse URL. Paste a full Discogs seller or artist URL.');
+        return;
+      }
+
+      state.token = tokenInput.value.trim();
+      state.query = query;
+      state.listings = [];
+      state.currentIndex = -1;
+      state.pagination = { page: 0, pages: 1, totalItems: 0 };
+      state.loading = false;
+
+      hideError();
+      showLoadingSkeleton();
+      await loadNextPage();
+    }
+
+    // ── UI HELPERS ────────────────────────────────────────
+    function showLoadingSkeleton() {
+      emptyState.classList.add('hidden');
+      recordDisplay.classList.add('hidden');
+      metaSkeleton.classList.remove('hidden');
+      metaContent.classList.add('hidden');
+    }
+
+    function showRecordDisplay() {
+      emptyState.classList.add('hidden');
+      recordDisplay.classList.remove('hidden');
+      artSkeleton.classList.add('hidden');
+      metaSkeleton.classList.add('hidden');
+      metaContent.classList.remove('hidden');
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.remove('hidden');
+      // If no listings yet, restore empty state
+      if (state.listings.length === 0) {
+        emptyState.classList.remove('hidden');
+        recordDisplay.classList.add('hidden');
+        metaSkeleton.classList.add('hidden');
+      }
+    }
+
+    function hideError() {
+      errorMsg.textContent = '';
+      errorMsg.classList.add('hidden');
+    }
+
+    // ── EVENTS — LOAD ─────────────────────────────────────
+    loadBtn.addEventListener('click', startLoad);
+    urlInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') startLoad();
+    });
+
+    // ── EVENTS — KEYBOARD NAVIGATION ─────────────────────
+    document.addEventListener('keydown', e => {
+      if (e.target === urlInput || e.target === tokenInput) return;
+      if (e.key === 'ArrowLeft'  || e.key === 'h') navigate(-1);
+      if (e.key === 'ArrowRight' || e.key === 'l') navigate(+1);
+    });
+
+    // ── EVENTS — BUTTONS ──────────────────────────────────
+    prevBtn.addEventListener('click', () => navigate(-1));
+    nextBtn.addEventListener('click', () => navigate(+1));
+    touchPrev.addEventListener('click', () => navigate(-1));
+    touchNext.addEventListener('click', () => navigate(+1));
+
+    // ── EVENTS — MOUSE WHEEL ──────────────────────────────
+    recordDisplay.addEventListener('wheel', e => {
+      e.preventDefault();
+      const delta = e.deltaX || e.deltaY;
+      if (delta > 0) navigate(+1);
+      else if (delta < 0) navigate(-1);
+    }, { passive: false });
+
+    // ── EVENTS — TOUCH SWIPE ──────────────────────────────
+    let touchStartX = null;
+    recordDisplay.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    recordDisplay.addEventListener('touchend', e => {
+      if (touchStartX === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      touchStartX = null;
+      if (Math.abs(dx) > 40) navigate(dx < 0 ? +1 : -1);
+    }, { passive: true });
+
+  })();
+  </script>
+</body>
+</html>
