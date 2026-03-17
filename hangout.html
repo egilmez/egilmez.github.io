@@ -418,7 +418,7 @@ function decodeState(hash) {
 }
 
 function saveState(state) {
-  location.hash = '#' + encodeState(state);
+  location.hash = encodeState(state);
 }
 
 function getState() {
