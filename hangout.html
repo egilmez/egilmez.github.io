@@ -277,6 +277,29 @@
       margin-bottom: 16px;
     }
 
+    /* ── My Events ── */
+    .my-event-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .my-event-row:last-child { border-bottom: none; }
+    .my-event-link {
+      color: #2e7d32;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+    .my-event-link:hover { text-decoration: underline; }
+    .my-event-age {
+      font-size: 0.78rem;
+      color: #999;
+      white-space: nowrap;
+      margin-left: 12px;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 480px) {
       h1 { font-size: 1.5rem; }
@@ -308,6 +331,11 @@
       <div class="error" id="err-title">Please give your event a name.</div>
       <br>
       <button class="btn btn-primary" onclick="createEvent()">Create &amp; get invite link</button>
+    </div>
+
+    <div class="card" id="my-events-card" style="display:none;">
+      <h2>My events</h2>
+      <div id="my-events-list"></div>
     </div>
   </div>
 
@@ -406,19 +434,25 @@
 
 function encodeState(state) {
   try {
-    return btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+    // base64url: URL-safe, no padding – handles spaces and unicode in titles
+    return btoa(unescape(encodeURIComponent(JSON.stringify(state))))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
   } catch(e) { return ''; }
 }
 
 function decodeState(hash) {
   if (!hash || hash.length < 2) return null;
   try {
-    return JSON.parse(decodeURIComponent(escape(atob(hash.slice(1)))));
+    // Restore standard base64 from base64url before decoding
+    let b64 = hash.slice(1).replace(/-/g, '+').replace(/_/g, '/');
+    // Re-add stripped padding
+    b64 += '==='.slice(0, (4 - b64.length % 4) % 4);
+    return JSON.parse(decodeURIComponent(escape(atob(b64))));
   } catch(e) { return null; }
 }
 
 function saveState(state) {
-  location.hash = '#' + encodeState(state);
+  location.hash = encodeState(state);
 }
 
 function getState() {
@@ -441,9 +475,62 @@ function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
 
+  if (id === 'create')   renderMyEvents();
   if (id === 'name')     populateNameView();
   if (id === 'calendar') populateCalendarView();
   if (id === 'results')  populateResultsView();
+}
+
+// ─────────────────────────────────────────────────
+//  My Events (localStorage)
+// ─────────────────────────────────────────────────
+
+const LS_KEY = 'hangout_my_events';
+
+function loadMyEvents() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
+  catch(e) { return []; }
+}
+
+function persistMyEvent(title, hash) {
+  const events = loadMyEvents().filter(e => e.hash !== hash); // no dupes
+  events.unshift({ title, hash, createdAt: Date.now() });
+  try { localStorage.setItem(LS_KEY, JSON.stringify(events.slice(0, 20))); }
+  catch(e) {}
+}
+
+function renderMyEvents() {
+  const events = loadMyEvents();
+  const card   = document.getElementById('my-events-card');
+  const list   = document.getElementById('my-events-list');
+  if (!events.length) { card.style.display = 'none'; return; }
+
+  card.style.display = 'block';
+  list.innerHTML = events.map(e => {
+    const ago = timeAgo(e.createdAt);
+    return `<div class="my-event-row">
+      <a class="my-event-link" href="#${e.hash}">${esc(e.title)}</a>
+      <span class="my-event-age">${ago}</span>
+    </div>`;
+  }).join('');
+
+  // Clicking a saved event link loads it
+  list.querySelectorAll('.my-event-link').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      location.hash = '#' + a.getAttribute('href').slice(1);
+      showView('name');
+    });
+  });
+}
+
+function timeAgo(ts) {
+  const diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 60)          return 'just now';
+  if (diff < 3600)        return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400)       return Math.floor(diff / 3600) + 'h ago';
+  if (diff < 86400 * 30)  return Math.floor(diff / 86400) + 'd ago';
+  return new Date(ts).toLocaleDateString();
 }
 
 // ─────────────────────────────────────────────────
@@ -460,6 +547,7 @@ function createEvent() {
 
   const state = { title, participants: [] };
   saveState(state);
+  persistMyEvent(title, encodeState(state));
   showView('name');
 }
 
