@@ -324,13 +324,33 @@
        Shown when no URL hash / no existing event
   ════════════════════════════════════════════ -->
   <div id="view-create" class="view">
-    <div class="card">
+    <!-- Step 1: enter title -->
+    <div class="card" id="create-form-card">
       <h2>Create a new event</h2>
       <label for="input-title">What's the occasion?</label>
       <input type="text" id="input-title" placeholder="e.g. Weekend hike, Movie night…" maxlength="80">
       <div class="error" id="err-title">Please give your event a name.</div>
       <br>
       <button class="btn btn-primary" onclick="createEvent()">Create event &amp; copy invite link</button>
+    </div>
+
+    <!-- Step 2: link ready (hidden until event is created) -->
+    <div class="card" id="link-ready-card" style="display:none;">
+      <div style="font-size:1.5rem;margin-bottom:4px;">🎉 Your invite link is ready!</div>
+      <div style="font-size:0.9rem;color:#555;margin-bottom:16px;">Share it with friends — they can open the link and add their available dates.</div>
+
+      <div style="font-weight:700;font-size:1.1rem;color:#222;margin-bottom:12px;" id="link-ready-title"></div>
+
+      <div class="share-row">
+        <input type="text" id="link-ready-input" readonly onclick="this.select()">
+        <button class="btn btn-secondary" onclick="copyLinkReady()">Copy</button>
+      </div>
+      <div class="copy-confirm" id="copy-confirm-ready">Copied!</div>
+
+      <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="showView('name')">Add my availability →</button>
+        <button class="btn btn-outline" onclick="startOver()">Create another event</button>
+      </div>
     </div>
 
     <div class="card" id="my-events-card" style="display:none;">
@@ -548,14 +568,37 @@ function createEvent() {
   const state = { title, participants: [] };
   saveState(state);
   persistMyEvent(title, encodeState(state));
-  showView('name');
 
-  // Auto-copy the invite link
+  // Build the invite link from the freshly-set hash
   const link = location.href.split('#')[0] + location.hash;
-  navigator.clipboard.writeText(link).catch(() => {});
-  const conf = document.getElementById('copy-confirm-name');
+
+  // Show link-ready section, hide create form
+  document.getElementById('create-form-card').style.display = 'none';
+  document.getElementById('link-ready-title').textContent = title;
+  document.getElementById('link-ready-input').value = link;
+  document.getElementById('link-ready-card').style.display = 'block';
+
+  // Auto-copy and show confirmation
+  safeCopy(link);
+  const conf = document.getElementById('copy-confirm-ready');
   conf.style.display = 'block';
   setTimeout(() => { conf.style.display = 'none'; }, 2000);
+}
+
+function copyLinkReady() {
+  const link = document.getElementById('link-ready-input').value;
+  safeCopy(link);
+  const conf = document.getElementById('copy-confirm-ready');
+  conf.style.display = 'block';
+  setTimeout(() => { conf.style.display = 'none'; }, 2000);
+}
+
+function startOver() {
+  // Reset create view back to the form
+  document.getElementById('link-ready-card').style.display = 'none';
+  document.getElementById('create-form-card').style.display = 'block';
+  document.getElementById('input-title').value = '';
+  location.hash = '';
 }
 
 // ─────────────────────────────────────────────────
@@ -828,14 +871,26 @@ function esc(str) {
     .replace(/"/g,'&quot;');
 }
 
-function copyLink(inputId, confirmId) {
-  const el = document.getElementById(inputId);
-  el.select();
-  try {
-    navigator.clipboard.writeText(el.value).catch(() => document.execCommand('copy'));
-  } catch(e) {
-    document.execCommand('copy');
+function safeCopy(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
   }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+function copyLink(inputId, confirmId) {
+  safeCopy(document.getElementById(inputId).value);
   const conf = document.getElementById(confirmId);
   conf.style.display = 'block';
   setTimeout(() => { conf.style.display = 'none'; }, 2000);
