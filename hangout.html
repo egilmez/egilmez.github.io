@@ -341,11 +341,14 @@
 
       <div style="font-weight:700;font-size:1.1rem;color:#222;margin-bottom:12px;" id="link-ready-title"></div>
 
+      <!-- Native share (best on iPhone) — hidden until JS confirms support -->
+      <button class="btn btn-primary" id="share-native-btn" style="display:none;width:100%;margin-bottom:10px;" onclick="shareNative()">⬆ Share invite link</button>
+
       <div class="share-row">
-        <input type="text" id="link-ready-input" readonly onclick="this.select()">
+        <input type="text" id="link-ready-input" readonly>
         <button class="btn btn-secondary" onclick="copyLinkReady()">Copy</button>
       </div>
-      <div class="copy-confirm" id="copy-confirm-ready">Copied!</div>
+      <div class="copy-confirm" id="copy-confirm-ready"></div>
 
       <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn btn-primary" onclick="showView('name')">Add my availability →</button>
@@ -578,27 +581,59 @@ function createEvent() {
   document.getElementById('link-ready-input').value = link;
   document.getElementById('link-ready-card').style.display = 'block';
 
-  // Auto-copy and show confirmation
-  safeCopy(link);
-  const conf = document.getElementById('copy-confirm-ready');
-  conf.style.display = 'block';
-  setTimeout(() => { conf.style.display = 'none'; }, 2000);
+  // Show native share button on supported browsers (iOS Safari, Chrome Android, etc.)
+  if (navigator.share) {
+    document.getElementById('share-native-btn').style.display = 'block';
+  }
+}
+
+function shareNative() {
+  const link  = document.getElementById('link-ready-input').value;
+  const title = document.getElementById('link-ready-title').textContent;
+  navigator.share({ title: 'Hangout: ' + title, text: 'Pick your available dates!', url: link })
+    .catch(() => {}); // user cancelled – ignore
 }
 
 function copyLinkReady() {
   const link = document.getElementById('link-ready-input').value;
-  safeCopy(link);
   const conf = document.getElementById('copy-confirm-ready');
-  conf.style.display = 'block';
-  setTimeout(() => { conf.style.display = 'none'; }, 2000);
+
+  function showOK() {
+    conf.style.color = '#4CAF50';
+    conf.textContent = 'Copied!';
+    conf.style.display = 'block';
+    setTimeout(() => { conf.style.display = 'none'; }, 2500);
+  }
+  function showFail() {
+    conf.style.color = '#c0392b';
+    conf.textContent = 'Tap and hold the link above, then choose Copy.';
+    conf.style.display = 'block';
+    setTimeout(() => { conf.style.display = 'none'; }, 4000);
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(showOK).catch(showFail);
+  } else {
+    // iOS ≤13 / non-HTTPS fallback: use a temporary focusable input
+    const tmp = document.createElement('input');
+    tmp.value = link;
+    tmp.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.01;font-size:16px;width:1px;height:1px;';
+    document.body.appendChild(tmp);
+    tmp.focus();
+    tmp.setSelectionRange(0, link.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(tmp);
+    ok ? showOK() : showFail();
+  }
 }
 
 function startOver() {
-  // Reset create view back to the form
   document.getElementById('link-ready-card').style.display = 'none';
+  document.getElementById('share-native-btn').style.display = 'none';
   document.getElementById('create-form-card').style.display = 'block';
   document.getElementById('input-title').value = '';
-  location.hash = '';
+  // Replace history entry instead of navigating (avoids Safari scroll-to-top / back-button confusion)
+  history.replaceState(null, '', location.pathname + location.search);
 }
 
 // ─────────────────────────────────────────────────
@@ -871,29 +906,36 @@ function esc(str) {
     .replace(/"/g,'&quot;');
 }
 
-function safeCopy(text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
-  const ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); } catch(e) {}
-  document.body.removeChild(ta);
-}
-
 function copyLink(inputId, confirmId) {
-  safeCopy(document.getElementById(inputId).value);
+  const text = document.getElementById(inputId).value;
   const conf = document.getElementById(confirmId);
-  conf.style.display = 'block';
-  setTimeout(() => { conf.style.display = 'none'; }, 2000);
+
+  function showOK() {
+    conf.style.color = '#4CAF50';
+    conf.textContent = 'Copied!';
+    conf.style.display = 'block';
+    setTimeout(() => { conf.style.display = 'none'; }, 2500);
+  }
+  function showFail() {
+    conf.style.color = '#c0392b';
+    conf.textContent = 'Tap and hold the link, then choose Copy.';
+    conf.style.display = 'block';
+    setTimeout(() => { conf.style.display = 'none'; }, 4000);
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showOK).catch(showFail);
+  } else {
+    const tmp = document.createElement('input');
+    tmp.value = text;
+    tmp.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.01;font-size:16px;width:1px;height:1px;';
+    document.body.appendChild(tmp);
+    tmp.focus();
+    tmp.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(tmp);
+    ok ? showOK() : showFail();
+  }
 }
 
 // ─────────────────────────────────────────────────
