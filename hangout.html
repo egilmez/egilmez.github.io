@@ -331,7 +331,7 @@
       <input type="text" id="input-title" placeholder="e.g. Weekend hike, Movie night…" maxlength="80" oninput="this.style.borderColor=''">
       <div class="error" id="err-title">Please give your event a name.</div>
       <br>
-      <button type="button" class="btn btn-primary" onclick="createEvent()">Create event &amp; copy invite link</button>
+      <button type="button" class="btn btn-primary" onclick="handleCreateEvent()">Create event &amp; copy invite link</button>
     </div>
 
     <!-- Step 2: link ready (hidden until event is created) -->
@@ -560,7 +560,7 @@ function timeAgo(ts) {
 //  CREATE VIEW
 // ─────────────────────────────────────────────────
 
-function createEvent() {
+function handleCreateEvent() {
   const titleEl = document.getElementById('input-title');
   const errEl   = document.getElementById('err-title');
   const title   = titleEl.value.trim();
