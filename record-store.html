@@ -416,42 +416,6 @@
       border-color: var(--accent);
     }
 
-    /* ── SOUNDCLOUD PANEL ─────────────────────────────────── */
-    #sc-panel {
-      width: 100%;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-    }
-    #sc-panel.hidden { display: none; }
-    #sc-panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    #sc-panel-label {
-      font-size: 0.72rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-    #sc-close {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 0.85rem;
-      padding: 2px 6px;
-    }
-    #sc-close:hover { color: var(--accent); }
-    #sc-iframe {
-      width: 100%;
-      height: 300px;
-      border: none;
-    }
 
     /* ── TOUCH NAV ROW (mobile only) ─────────────────────── */
     #touch-nav-row {
@@ -601,7 +565,8 @@
     <div id="url-row">
       <input id="discogs-url" type="url"
         placeholder="Paste a Discogs seller or artist URL…"
-        autocomplete="off" spellcheck="false">
+        autocomplete="off" spellcheck="false" list="url-history">
+      <datalist id="url-history"></datalist>
       <button id="load-btn">Load</button>
     </div>
     <div id="token-row">
@@ -716,23 +681,13 @@
           <div id="search-links">
             <a id="search-youtube"    target="_blank" rel="noopener noreferrer">YouTube ↗</a>
             <a id="search-bandcamp"   target="_blank" rel="noopener noreferrer">Bandcamp ↗</a>
-            <button id="search-soundcloud">SoundCloud ▾</button>
+            <a id="search-soundcloud" target="_blank" rel="noopener noreferrer">SoundCloud ↗</a>
           </div>
         </div>
 
       </div>
     </aside>
 
-  </div>
-
-  <!-- SOUNDCLOUD PANEL -->
-  <div id="sc-panel" class="hidden">
-    <div id="sc-panel-header">
-      <span id="sc-panel-label">SoundCloud</span>
-      <button id="sc-close">✕</button>
-    </div>
-    <iframe id="sc-iframe" scrolling="no" frameborder="no" allow="autoplay"
-      src=""></iframe>
   </div>
 
   <!-- TOUCH NAV (mobile) -->
@@ -761,7 +716,6 @@
       pagination: { page: 0, pages: 1, totalItems: 0 },
       loading: false,
       query: null,
-      scQuery: '',
       token: ''
     };
 
@@ -805,6 +759,32 @@
     const savedToken = localStorage.getItem('discogs_token');
     if (savedToken) tokenInput.value = savedToken;
 
+    // ── URL HISTORY ───────────────────────────────────────
+    function saveUrlHistory(url) {
+      const key = 'discogs_url_history';
+      let hist = JSON.parse(localStorage.getItem(key) || '[]');
+      hist = [url, ...hist.filter(u => u !== url)].slice(0, 10);
+      localStorage.setItem(key, JSON.stringify(hist));
+      const dl = $('url-history');
+      dl.innerHTML = hist.map(u => `<option value="${u.replace(/"/g, '&quot;')}">`).join('');
+    }
+    // Populate datalist from existing history on page load
+    (function restoreUrlHistory() {
+      const hist = JSON.parse(localStorage.getItem('discogs_url_history') || '[]');
+      const dl = $('url-history');
+      dl.innerHTML = hist.map(u => `<option value="${u.replace(/"/g, '&quot;')}">`).join('');
+    })();
+
+    // ── SHAREABLE URL — restore from ?url= on page load ───
+    (function restoreSharedUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const sharedUrl = params.get('url');
+      if (sharedUrl) {
+        urlInput.value = sharedUrl;
+        if (savedToken) setTimeout(startLoad, 0);
+      }
+    })();
+
     // ── URL PARSING ───────────────────────────────────────
     function parseDiscogsUrl(raw) {
       let url = raw.trim();
@@ -836,7 +816,7 @@
         return `${API}/users/${encodeURIComponent(query.username)}/inventory?status=For+Sale&sort=listed&sort_order=desc&per_page=100&page=${page}`;
       }
       if (query.type === 'artist') {
-        return `${API}/marketplace/search?artist_id=${query.artistId}&per_page=50&page=${page}`;
+        return `${API}/marketplace/search?artist=${encodeURIComponent(query.artistName)}&per_page=50&page=${page}`;
       }
       if (query.type === 'release') {
         return `${API}/marketplace/search?release_id=${query.releaseId}&per_page=50&page=${page}`;
@@ -849,6 +829,17 @@
 
     // ── API FETCH — direct to Discogs, no third-party proxy ──
     async function fetchPage(query, page) {
+      // For artist queries, resolve the name first (API needs name, not id)
+      if (query.type === 'artist' && !query.artistName) {
+        const artistRes = await fetch(`${API}/artists/${query.artistId}`, {
+          headers: { 'Authorization': `Discogs token=${state.token}` }
+        });
+        if (artistRes.status === 404) throw new Error('Artist not found — double-check the URL.');
+        if (!artistRes.ok) throw new Error(`Could not resolve artist (HTTP ${artistRes.status}).`);
+        const artistData = await artistRes.json();
+        query.artistName = artistData.name;
+      }
+
       const url = buildApiUrl(query, page);
       if (!url) throw new Error('Unsupported URL type');
 
@@ -992,13 +983,9 @@
       addToCartBtn.onclick = () => window.open(listing.listingUrl, '_blank', 'noopener,noreferrer');
 
       const q = encodeURIComponent(`${listing.artist} ${listing.title}`);
-      $('search-youtube').href  = `https://www.youtube.com/results?search_query=${q}`;
-      $('search-bandcamp').href = `https://bandcamp.com/search?q=${q}`;
-      // Update SoundCloud panel if open
-      state.scQuery = q;
-      if (!$('sc-panel').classList.contains('hidden')) {
-        updateScWidget(q);
-      }
+      $('search-youtube').href      = `https://www.youtube.com/results?search_query=${q}`;
+      $('search-bandcamp').href     = `https://bandcamp.com/search?q=${q}`;
+      $('search-soundcloud').href   = `https://soundcloud.com/search?q=${q}`;
 
       // Pagination
       const total = state.pagination.totalItems || state.listings.length;
@@ -1086,6 +1073,7 @@
         return;
       }
 
+      saveUrlHistory(raw);
       state.token = token;
       localStorage.setItem('discogs_token', token);
       state.query = query;
@@ -1096,6 +1084,10 @@
 
       hideError();
       showLoadingSkeleton();
+      // Update browser URL so this page is shareable
+      const pageUrl = new URL(window.location.href);
+      pageUrl.searchParams.set('url', raw);
+      history.replaceState(null, '', pageUrl.toString());
       await loadNextPage();
     }
 
@@ -1150,36 +1142,6 @@
     touchPrev.addEventListener('click', () => navigate(-1));
     touchNext.addEventListener('click', () => navigate(+1));
 
-    // ── SOUNDCLOUD PANEL ──────────────────────────────────
-    function updateScWidget(q) {
-      const widgetSrc = `https://w.soundcloud.com/player/?url=${encodeURIComponent('https://soundcloud.com/search?q=' + decodeURIComponent(q))}&color=%23d4a843&auto_play=false&hide_related=true&show_comments=false&show_user=true&visual=true`;
-      $('sc-iframe').src = widgetSrc;
-    }
-
-    $('search-soundcloud').addEventListener('click', () => {
-      const panel = $('sc-panel');
-      const btn   = $('search-soundcloud');
-      const isOpen = !panel.classList.contains('hidden');
-      if (isOpen) {
-        panel.classList.add('hidden');
-        btn.textContent = 'SoundCloud ▾';
-        btn.classList.remove('active');
-        $('sc-iframe').src = '';
-      } else {
-        updateScWidget(state.scQuery || '');
-        panel.classList.remove('hidden');
-        btn.textContent = 'SoundCloud ▴';
-        btn.classList.add('active');
-        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    });
-
-    $('sc-close').addEventListener('click', () => {
-      $('sc-panel').classList.add('hidden');
-      $('search-soundcloud').textContent = 'SoundCloud ▾';
-      $('search-soundcloud').classList.remove('active');
-      $('sc-iframe').src = '';
-    });
 
     // ── EVENTS — MOUSE WHEEL ──────────────────────────────
     recordDisplay.addEventListener('wheel', e => {
