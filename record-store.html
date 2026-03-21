@@ -190,157 +190,53 @@
       align-items: center;
       justify-content: center;
       min-width: 0;
-      padding: 16px;
+      padding: 16px 16px 16px 26px; /* extra left for shadow peek */
       gap: 14px;
       position: relative;
-      cursor: grab;
     }
-    #record-display:active { cursor: grabbing; }
 
-    #record-jacket {
+    /* ── CRATE (stack illusion) ───────────────────────────── */
+    #crate-wrap {
       position: relative;
       width: min(55vh, 420px);
       aspect-ratio: 1;
-      border: 2px solid var(--border);
-      box-shadow: 0 0 60px var(--accent-glow), 0 8px 32px rgba(0,0,0,0.6);
       flex-shrink: 0;
-      perspective: 1200px;
-      cursor: pointer;
     }
 
-    .flip-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transform-style: preserve-3d;
-      transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    #record-jacket.flipped .flip-inner {
-      transform: rotateY(180deg);
-    }
-
-    .flip-front,
-    .flip-back {
+    /* Shadow cards peek top-left, giving a stacked depth */
+    .crate-shadow {
       position: absolute;
       inset: 0;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
+      border: 2px solid var(--border);
+      border-radius: 1px;
+      pointer-events: none;
+    }
+    .cs2 {
+      background: var(--surface);
+      transform: translate(-10px, -15px);
+      z-index: 0;
+    }
+    .cs1 {
+      background: linear-gradient(160deg, #2a2018 0%, var(--surface2) 100%);
+      transform: translate(-5px, -8px);
+      z-index: 1;
     }
 
-    .flip-front {
+    /* The actual front record */
+    #record-jacket {
+      position: absolute;
+      inset: 0;
       overflow: hidden;
       background: var(--surface2);
+      border: 2px solid var(--border);
       border-radius: 1px;
+      box-shadow: 0 0 60px var(--accent-glow), 0 8px 32px rgba(0,0,0,0.6);
+      z-index: 2;
+      cursor: grab;
+      /* Rotation pivots at bottom edge so top falls away on flip */
+      transform-origin: 50% 100%;
     }
-
-    .flip-back {
-      transform: rotateY(180deg);
-      background: #08060400;
-      border-radius: 1px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(ellipse at center, #1a1410 0%, #0a0806 100%);
-    }
-
-    /* ── VINYL DISC ───────────────────────────────────────── */
-    #vinyl-disc {
-      width: 88%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      background: radial-gradient(circle at 50% 50%,
-        #1e1e1e 0%,  #0d0d0d 6%,  #1a1a1a 7%,
-        #0d0d0d 14%, #1a1a1a 15%, #0d0d0d 22%,
-        #1a1a1a 23%, #0d0d0d 30%, #1a1a1a 31%,
-        #0d0d0d 38%, #1a1a1a 39%, #0d0d0d 46%,
-        #1a1a1a 47%, #0d0d0d 54%, #1a1a1a 55%,
-        #0d0d0d 62%, #141414 63%, #0c0c0c 100%
-      );
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow:
-        0 0 0 2px #1a1a1a,
-        0 6px 40px rgba(0,0,0,0.95),
-        inset 0 0 30px rgba(255,255,255,0.025);
-    }
-
-    /* Center record label */
-    #vinyl-label {
-      width: 36%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      background: radial-gradient(circle at 40% 35%, #f5e8c0, #c89840);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 8%;
-      box-shadow: inset 0 0 14px rgba(0,0,0,0.4), 0 0 10px rgba(0,0,0,0.6);
-      position: relative;
-      overflow: hidden;
-      gap: 2px;
-    }
-
-    /* Spindle hole */
-    #vinyl-label::after {
-      content: '';
-      position: absolute;
-      width: 10%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      background: #08060400;
-      background: #0a0806;
-      box-shadow: inset 0 0 4px rgba(0,0,0,0.9);
-    }
-
-    #vinyl-label-side {
-      font-family: 'Special Elite', cursive;
-      font-size: clamp(0.55rem, 2.5cqi, 0.9rem);
-      color: #7a3a10;
-      line-height: 1;
-      margin-bottom: 1px;
-      font-weight: bold;
-    }
-    #vinyl-label-artist {
-      font-family: 'Special Elite', cursive;
-      font-size: clamp(0.4rem, 1.8cqi, 0.65rem);
-      color: #3a2010;
-      line-height: 1.15;
-      overflow: hidden;
-      max-height: 26%;
-      word-break: break-word;
-    }
-    #vinyl-label-title {
-      font-size: clamp(0.33rem, 1.4cqi, 0.55rem);
-      color: #5a3818;
-      line-height: 1.15;
-      overflow: hidden;
-      max-height: 22%;
-      word-break: break-word;
-    }
-    #vinyl-label-info {
-      font-size: clamp(0.27rem, 1.1cqi, 0.44rem);
-      color: #9a7040;
-      margin-top: 2px;
-    }
-
-    /* Flip hint */
-    .flip-hint {
-      position: absolute;
-      bottom: 8px;
-      right: 10px;
-      font-size: 0.9rem;
-      color: rgba(212,168,67,0.4);
-      pointer-events: none;
-      transition: color 0.2s;
-      user-select: none;
-      line-height: 1;
-    }
-    #record-jacket:hover .flip-hint { color: rgba(212,168,67,0.85); }
-    #record-jacket.flipped .flip-hint { opacity: 0; }
+    #record-jacket:active { cursor: grabbing; }
 
     #album-art {
       width: 100%;
@@ -377,7 +273,7 @@
     #record-caption {
       text-align: center;
       max-width: min(55vh, 420px);
-      width: 100%;
+      width: min(55vh, 420px);
     }
     #caption-title {
       font-family: 'Special Elite', cursive;
@@ -685,9 +581,9 @@
 
       #prev-btn, #next-btn { display: none; }
 
-      #record-display { padding: 12px 16px 8px; }
+      #record-display { padding: 12px 20px 8px 28px; }
 
-      #record-jacket {
+      #crate-wrap {
         width: min(88vw, 340px);
         margin: 0 auto;
       }
@@ -767,35 +663,19 @@
 
     <!-- RECORD DISPLAY (hidden until loaded) -->
     <div id="record-display" class="hidden">
-      <div id="record-jacket">
-        <div class="flip-inner">
-
-          <!-- FRONT: album art -->
-          <div class="flip-front">
-            <img id="album-art" src="" alt="Album cover">
-            <div id="art-skeleton"></div>
-            <div id="no-image-placeholder" class="hidden">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <circle cx="24" cy="24" r="22" stroke="#d4a843" stroke-width="1.5"/>
-                <circle cx="24" cy="24" r="3" fill="#d4a843"/>
-              </svg>
-              <span>No image</span>
-            </div>
-            <div class="flip-hint">↻</div>
+      <div id="crate-wrap">
+        <div class="crate-shadow cs2"></div>
+        <div class="crate-shadow cs1"></div>
+        <div id="record-jacket">
+          <img id="album-art" src="" alt="Album cover">
+          <div id="art-skeleton"></div>
+          <div id="no-image-placeholder" class="hidden">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="22" stroke="#d4a843" stroke-width="1.5"/>
+              <circle cx="24" cy="24" r="3" fill="#d4a843"/>
+            </svg>
+            <span>No image</span>
           </div>
-
-          <!-- BACK: vinyl disc -->
-          <div class="flip-back">
-            <div id="vinyl-disc">
-              <div id="vinyl-label">
-                <div id="vinyl-label-side">A</div>
-                <div id="vinyl-label-artist"></div>
-                <div id="vinyl-label-title"></div>
-                <div id="vinyl-label-info"></div>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
       <div id="record-caption">
@@ -910,9 +790,6 @@
     const emptyState    = $('empty-state');
     const recordDisplay = $('record-display');
     const recordJacket  = $('record-jacket');
-    const vinylLabelArtist = $('vinyl-label-artist');
-    const vinylLabelTitle  = $('vinyl-label-title');
-    const vinylLabelInfo   = $('vinyl-label-info');
     const albumArt      = $('album-art');
     const artSkeleton   = $('art-skeleton');
     const noImage       = $('no-image-placeholder');
@@ -1131,21 +1008,13 @@
     }
 
     // ── RENDER ────────────────────────────────────────────
-    function render() {
+    function renderContent() {
       const listing = state.listings[state.currentIndex];
       if (!listing) return;
-
-      // Unflip on new record
-      recordJacket.classList.remove('flipped');
 
       // Caption
       captionTitle.textContent = listing.title;
       captionArtist.textContent = listing.artist;
-
-      // Vinyl label
-      vinylLabelArtist.textContent = listing.artist;
-      vinylLabelTitle.textContent  = listing.title;
-      vinylLabelInfo.textContent   = [listing.year, listing.label].filter(Boolean).join(' · ');
 
       // Album art — cross-fade
       albumArt.classList.add('fading');
@@ -1211,25 +1080,53 @@
       touchNext.disabled = nextBtn.disabled;
     }
 
-    // ── NAVIGATE ──────────────────────────────────────────
+    function render() {
+      renderContent();
+    }
+
+    // ── NAVIGATE (animated crate-flip) ────────────────────
+    let animating = false;
+
     function navigate(delta) {
-      if (state.loading) return;
+      if (state.loading || animating) return;
       const next = state.currentIndex + delta;
       if (next < 0) return;
       if (next >= state.listings.length) {
-        // Need more pages
-        if (state.pagination.page < state.pagination.pages) {
-          loadNextPage();
-        }
+        if (state.pagination.page < state.pagination.pages) loadNextPage();
         return;
       }
-      state.currentIndex = next;
-      render();
 
-      // Prefetch next page when within 10 of the end
-      if (state.listings.length - next < 10 && state.pagination.page < state.pagination.pages) {
-        loadNextPage();
-      }
+      animating = true;
+
+      // Phase 1 — exit: top of jacket falls backward (rotateX from bottom)
+      recordJacket.style.transition = 'transform 0.22s ease-in, opacity 0.18s ease-in';
+      recordJacket.style.transformOrigin = '50% 100%';
+      recordJacket.style.transform = 'perspective(700px) rotateX(-88deg)';
+      recordJacket.style.opacity = '0';
+
+      setTimeout(() => {
+        // Phase 2 — swap content while card is "away"
+        state.currentIndex = next;
+        renderContent();
+
+        // Start position for enter (tilted slightly, coming from the stack)
+        recordJacket.style.transition = 'none';
+        recordJacket.style.transform = 'perspective(700px) rotateX(-14deg)';
+        recordJacket.style.opacity = '0.5';
+
+        requestAnimationFrame(() => {
+          // Phase 3 — animate to resting flat position
+          recordJacket.style.transition = 'transform 0.22s ease-out, opacity 0.2s ease-out';
+          recordJacket.style.transform = '';
+          recordJacket.style.opacity = '';
+          setTimeout(() => { animating = false; }, 230);
+        });
+
+        // Prefetch if near end
+        if (state.listings.length - next < 10 && state.pagination.page < state.pagination.pages) {
+          loadNextPage();
+        }
+      }, 210);
     }
 
     // ── LOAD ──────────────────────────────────────────────
@@ -1345,8 +1242,8 @@
     // ── EVENTS — KEYBOARD NAVIGATION ─────────────────────
     document.addEventListener('keydown', e => {
       if (e.target === urlInput || e.target === tokenInput) return;
-      if (e.key === 'ArrowLeft'  || e.key === 'h') navigate(-1);
-      if (e.key === 'ArrowRight' || e.key === 'l') navigate(+1);
+      if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp'   || e.key === 'h') navigate(-1);
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown'  || e.key === 'l') navigate(+1);
     });
 
     // ── EVENTS — BUTTONS ──────────────────────────────────
@@ -1355,11 +1252,6 @@
     touchPrev.addEventListener('click', () => navigate(-1));
     touchNext.addEventListener('click', () => navigate(+1));
 
-    // ── EVENTS — FLIP ─────────────────────────────────────
-    recordJacket.addEventListener('click', () => {
-      if (state.listings.length === 0) return;
-      recordJacket.classList.toggle('flipped');
-    });
 
 
     // ── EVENTS — MOUSE WHEEL ──────────────────────────────
@@ -1370,16 +1262,23 @@
       else if (delta < 0) navigate(-1);
     }, { passive: false });
 
-    // ── EVENTS — TOUCH SWIPE ──────────────────────────────
-    let touchStartX = null;
+    // ── EVENTS — TOUCH SWIPE (horizontal or vertical) ────
+    let touchStartX = null, touchStartY = null;
     recordDisplay.addEventListener('touchstart', e => {
       touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
     }, { passive: true });
     recordDisplay.addEventListener('touchend', e => {
       if (touchStartX === null) return;
       const dx = e.changedTouches[0].clientX - touchStartX;
-      touchStartX = null;
-      if (Math.abs(dx) > 40) navigate(dx < 0 ? +1 : -1);
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      touchStartX = touchStartY = null;
+      // Prefer whichever axis moved more
+      if (Math.abs(dy) > Math.abs(dx)) {
+        if (Math.abs(dy) > 40) navigate(dy < 0 ? +1 : -1); // swipe up = next
+      } else {
+        if (Math.abs(dx) > 40) navigate(dx < 0 ? +1 : -1); // swipe left = next
+      }
     }, { passive: true });
 
   })();
