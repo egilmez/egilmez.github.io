@@ -235,6 +235,7 @@
       cursor: grab;
       /* Rotation pivots at bottom edge so top falls away on flip */
       transform-origin: 50% 100%;
+      will-change: transform, opacity;
     }
     #record-jacket:active { cursor: grabbing; }
 
@@ -1008,7 +1009,7 @@
     }
 
     // ── RENDER ────────────────────────────────────────────
-    function renderContent() {
+    function renderContent(quick = false) {
       const listing = state.listings[state.currentIndex];
       if (!listing) return;
 
@@ -1016,26 +1017,49 @@
       captionTitle.textContent = listing.title;
       captionArtist.textContent = listing.artist;
 
-      // Album art — cross-fade
-      albumArt.classList.add('fading');
-      artSkeleton.classList.add('hidden');
-      noImage.classList.add('hidden');
-      albumArt.style.display = 'block';
-
-      setTimeout(() => {
+      // Album art
+      if (quick) {
+        // Card is invisible during navigation — set src immediately, no cross-fade.
+        // artSkeleton acts as placeholder while the new image loads.
+        albumArt.classList.remove('fading');
+        noImage.classList.add('hidden');
         if (listing.imageUrl) {
+          albumArt.style.display = 'block';
+          artSkeleton.classList.remove('hidden');
           albumArt.src = listing.imageUrl;
-          albumArt.onload  = () => albumArt.classList.remove('fading');
+          albumArt.onload  = () => artSkeleton.classList.add('hidden');
           albumArt.onerror = () => {
             albumArt.style.display = 'none';
+            artSkeleton.classList.add('hidden');
             noImage.classList.remove('hidden');
           };
         } else {
           albumArt.style.display = 'none';
-          albumArt.classList.remove('fading');
+          albumArt.src = '';
+          artSkeleton.classList.add('hidden');
           noImage.classList.remove('hidden');
         }
-      }, 80);
+      } else {
+        // Cross-fade path for initial/non-animated render
+        albumArt.classList.add('fading');
+        artSkeleton.classList.add('hidden');
+        noImage.classList.add('hidden');
+        albumArt.style.display = 'block';
+        setTimeout(() => {
+          if (listing.imageUrl) {
+            albumArt.src = listing.imageUrl;
+            albumArt.onload  = () => albumArt.classList.remove('fading');
+            albumArt.onerror = () => {
+              albumArt.style.display = 'none';
+              noImage.classList.remove('hidden');
+            };
+          } else {
+            albumArt.style.display = 'none';
+            albumArt.classList.remove('fading');
+            noImage.classList.remove('hidden');
+          }
+        }, 80);
+      }
 
       // Metadata
       metaPrice.textContent = listing.price;
@@ -1107,20 +1131,22 @@
       setTimeout(() => {
         // Phase 2 — swap content while card is "away"
         state.currentIndex = next;
-        renderContent();
+        renderContent(true); // quick=true: no cross-fade, set src immediately
 
-        // Start position for enter (tilted slightly, coming from the stack)
+        // Set enter start position (no transition so browser records this state)
         recordJacket.style.transition = 'none';
         recordJacket.style.transform = 'perspective(700px) rotateX(-14deg)';
         recordJacket.style.opacity = '0.5';
 
-        requestAnimationFrame(() => {
+        // Double rAF: first rAF schedules paint of the no-transition state,
+        // second rAF fires after that paint so re-enabling transition is clean.
+        requestAnimationFrame(() => requestAnimationFrame(() => {
           // Phase 3 — animate to resting flat position
           recordJacket.style.transition = 'transform 0.22s ease-out, opacity 0.2s ease-out';
           recordJacket.style.transform = '';
           recordJacket.style.opacity = '';
           setTimeout(() => { animating = false; }, 230);
-        });
+        }));
 
         // Prefetch if near end
         if (state.listings.length - next < 10 && state.pagination.page < state.pagination.pages) {
