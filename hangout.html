@@ -328,10 +328,10 @@
     <div class="card" id="create-form-card">
       <h2>Create a new event</h2>
       <label for="input-title">What's the occasion?</label>
-      <input type="text" id="input-title" placeholder="e.g. Weekend hike, Movie night…" maxlength="80">
+      <input type="text" id="input-title" placeholder="e.g. Weekend hike, Movie night…" maxlength="80" oninput="this.style.borderColor=''">
       <div class="error" id="err-title">Please give your event a name.</div>
       <br>
-      <button class="btn btn-primary" onclick="createEvent()">Create event &amp; copy invite link</button>
+      <button type="button" class="btn btn-primary" onclick="createEvent()">Create event &amp; copy invite link</button>
     </div>
 
     <!-- Step 2: link ready (hidden until event is created) -->
@@ -342,17 +342,17 @@
       <div style="font-weight:700;font-size:1.1rem;color:#222;margin-bottom:12px;" id="link-ready-title"></div>
 
       <!-- Native share (best on iPhone) — hidden until JS confirms support -->
-      <button class="btn btn-primary" id="share-native-btn" style="display:none;width:100%;margin-bottom:10px;" onclick="shareNative()">⬆ Share invite link</button>
+      <button type="button" class="btn btn-primary" id="share-native-btn" style="display:none;width:100%;margin-bottom:10px;" onclick="shareNative()">⬆ Share invite link</button>
 
       <div class="share-row">
         <input type="text" id="link-ready-input" readonly>
-        <button class="btn btn-secondary" onclick="copyLinkReady()">Copy</button>
+        <button type="button" class="btn btn-secondary" onclick="copyLinkReady()">Copy</button>
       </div>
       <div class="copy-confirm" id="copy-confirm-ready"></div>
 
       <div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="showView('name')">Add my availability →</button>
-        <button class="btn btn-outline" onclick="startOver()">Create another event</button>
+        <button type="button" class="btn btn-primary" onclick="showView('name')">Add my availability →</button>
+        <button type="button" class="btn btn-outline" onclick="startOver()">Create another event</button>
       </div>
     </div>
 
@@ -372,18 +372,18 @@
       <div class="event-tag">Open invite</div>
 
       <label for="input-name">Your name</label>
-      <input type="text" id="input-name" placeholder="e.g. Alice" maxlength="40">
+      <input type="text" id="input-name" placeholder="e.g. Alice" maxlength="40" oninput="this.style.borderColor=''">
       <div class="error" id="err-name">Please enter your name.</div>
       <div class="error" id="err-name-dup">That name's already taken – pick another!</div>
       <br>
-      <button class="btn btn-primary" onclick="submitName()">Pick my dates →</button>
+      <button type="button" class="btn btn-primary" onclick="submitName()">Pick my dates →</button>
     </div>
 
     <!-- Show existing participants if any -->
     <div class="card" id="name-participants-card" style="display:none;">
       <h2>Who's already in</h2>
       <div id="name-participants-list" class="participants-list"></div>
-      <button class="btn btn-outline" onclick="showView('results')">View current results</button>
+      <button type="button" class="btn btn-outline" onclick="showView('results')">View current results</button>
     </div>
 
     <!-- Share link -->
@@ -392,7 +392,7 @@
       <p style="font-size:0.85rem;color:#555;margin-bottom:8px;">Share this with friends so they can add their availability:</p>
       <div class="share-row">
         <input type="text" id="invite-link" readonly onclick="this.select()">
-        <button class="btn btn-secondary" onclick="copyLink('invite-link','copy-confirm-name')">Copy</button>
+        <button type="button" class="btn btn-secondary" onclick="copyLink('invite-link','copy-confirm-name')">Copy</button>
       </div>
       <div class="copy-confirm" id="copy-confirm-name">Copied!</div>
     </div>
@@ -407,9 +407,9 @@
       <p style="font-size:0.85rem;color:#666;margin-bottom:18px;">Click dates you're free. Click again to deselect.</p>
 
       <div class="cal-header">
-        <button class="cal-nav" onclick="changeMonth(-1)">&#8592; Prev</button>
+        <button type="button" class="cal-nav" onclick="changeMonth(-1)">&#8592; Prev</button>
         <span class="cal-month-label" id="cal-month-label"></span>
-        <button class="cal-nav" onclick="changeMonth(1)">Next &#8594;</button>
+        <button type="button" class="cal-nav" onclick="changeMonth(1)">Next &#8594;</button>
       </div>
 
       <div class="cal-grid" id="cal-grid"></div>
@@ -417,8 +417,8 @@
       <div style="margin-top:16px;font-size:0.85rem;color:#555;" id="cal-selected-count">No dates selected yet.</div>
       <div class="error" id="err-dates">Please select at least one date.</div>
       <br>
-      <button class="btn btn-primary" onclick="submitDates()">Done – see results ✓</button>
-      <button class="btn btn-secondary" onclick="showView('name')">Back</button>
+      <button type="button" class="btn btn-primary" onclick="submitDates()">Done – see results ✓</button>
+      <button type="button" class="btn btn-secondary" onclick="showView('name')">Back</button>
     </div>
   </div>
 
@@ -440,8 +440,8 @@
       <h2>Who's in (<span id="results-count"></span>)</h2>
       <div id="results-participants" class="participants-list"></div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
-        <button class="btn btn-primary" onclick="showView('name')">Add my availability</button>
-        <button class="btn btn-secondary" onclick="copyLink('results-share-link','copy-confirm-results')">Copy invite link</button>
+        <button type="button" class="btn btn-primary" onclick="showView('name')">Add my availability</button>
+        <button type="button" class="btn btn-secondary" onclick="copyLink('results-share-link','copy-confirm-results')">Copy invite link</button>
       </div>
       <input type="text" id="results-share-link" readonly style="display:none;">
       <div class="copy-confirm" id="copy-confirm-results">Copied!</div>
@@ -565,7 +565,13 @@ function createEvent() {
   const errEl   = document.getElementById('err-title');
   const title   = titleEl.value.trim();
 
-  if (!title) { errEl.style.display = 'block'; titleEl.focus(); return; }
+  if (!title) {
+    titleEl.style.borderColor = '#c0392b';
+    errEl.style.display = 'block';
+    errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
+  }
+  titleEl.style.borderColor = '';
   errEl.style.display = 'none';
 
   const state = { title, participants: [] };
@@ -673,10 +679,21 @@ function submitName() {
   errEl.style.display = 'none';
   errDupEl.style.display = 'none';
 
-  if (!name) { errEl.style.display = 'block'; nameEl.focus(); return; }
+  if (!name) {
+    nameEl.style.borderColor = '#c0392b';
+    errEl.style.display = 'block';
+    errEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
+  }
 
   const dup = state && state.participants.some(p => p.name.toLowerCase() === name.toLowerCase());
-  if (dup) { errDupEl.style.display = 'block'; nameEl.focus(); return; }
+  if (dup) {
+    nameEl.style.borderColor = '#c0392b';
+    errDupEl.style.display = 'block';
+    errDupEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
+  }
+  nameEl.style.borderColor = '';
 
   currentUserName = name;
   selectedDates   = new Set();
