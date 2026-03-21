@@ -11,30 +11,38 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Record Store</title>
+  <title>Record Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:           #0d0d0d;
-      --surface:      #161616;
-      --surface2:     #1e1e1e;
-      --border:       #2e2e2e;
+      --bg:           #0f0c09;
+      --surface:      #191410;
+      --surface2:     #221c16;
+      --border:       #3d3020;
       --accent:       #d4a843;
       --accent-dark:  #a07820;
-      --accent-glow:  rgba(212, 168, 67, 0.18);
-      --text:         #e8e0d0;
-      --text-muted:   #7a7060;
+      --accent-glow:  rgba(212, 168, 67, 0.22);
+      --text:         #ede4d3;
+      --text-muted:   #7a6a54;
       --green:        #7ec8a0;
       --red:          #c87e7e;
-      --sk-a:         #1a1a1a;
-      --sk-b:         #252525;
+      --sk-a:         #1c1610;
+      --sk-b:         #2a2018;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background: var(--bg);
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 3px,
+          rgba(255,255,255,0.012) 3px,
+          rgba(255,255,255,0.012) 4px
+        );
       color: var(--text);
       font-family: 'Courier New', Courier, monospace;
       height: 100dvh;
@@ -48,18 +56,35 @@
     #top-bar {
       flex-shrink: 0;
       padding: 10px 16px 8px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      background: linear-gradient(to bottom, #231a12, var(--surface));
+      box-shadow: 0 2px 20px rgba(0,0,0,0.7);
     }
 
     #store-title {
       font-family: 'Special Elite', cursive;
       color: var(--accent);
       font-size: 1rem;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.25em;
       text-transform: uppercase;
       margin-bottom: 8px;
-      opacity: 0.85;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #store-title::before,
+    #store-title::after {
+      content: '●';
+      font-size: 0.45rem;
+      color: var(--accent);
+      opacity: 0.7;
+      animation: led-pulse 2.4s ease-in-out infinite;
+    }
+    #store-title::after { animation-delay: 1.2s; }
+    @keyframes led-pulse {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 1;   }
     }
 
     #url-row {
@@ -177,12 +202,145 @@
       width: min(55vh, 420px);
       aspect-ratio: 1;
       border: 2px solid var(--border);
-      box-shadow: 0 0 60px var(--accent-glow);
+      box-shadow: 0 0 60px var(--accent-glow), 0 8px 32px rgba(0,0,0,0.6);
+      flex-shrink: 0;
+      perspective: 1200px;
+      cursor: pointer;
+    }
+
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #record-jacket.flipped .flip-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-front,
+    .flip-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .flip-front {
       overflow: hidden;
       background: var(--surface2);
-      border-radius: 2px;
-      flex-shrink: 0;
+      border-radius: 1px;
     }
+
+    .flip-back {
+      transform: rotateY(180deg);
+      background: #08060400;
+      border-radius: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, #1a1410 0%, #0a0806 100%);
+    }
+
+    /* ── VINYL DISC ───────────────────────────────────────── */
+    #vinyl-disc {
+      width: 88%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%,
+        #1e1e1e 0%,  #0d0d0d 6%,  #1a1a1a 7%,
+        #0d0d0d 14%, #1a1a1a 15%, #0d0d0d 22%,
+        #1a1a1a 23%, #0d0d0d 30%, #1a1a1a 31%,
+        #0d0d0d 38%, #1a1a1a 39%, #0d0d0d 46%,
+        #1a1a1a 47%, #0d0d0d 54%, #1a1a1a 55%,
+        #0d0d0d 62%, #141414 63%, #0c0c0c 100%
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 2px #1a1a1a,
+        0 6px 40px rgba(0,0,0,0.95),
+        inset 0 0 30px rgba(255,255,255,0.025);
+    }
+
+    /* Center record label */
+    #vinyl-label {
+      width: 36%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #f5e8c0, #c89840);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8%;
+      box-shadow: inset 0 0 14px rgba(0,0,0,0.4), 0 0 10px rgba(0,0,0,0.6);
+      position: relative;
+      overflow: hidden;
+      gap: 2px;
+    }
+
+    /* Spindle hole */
+    #vinyl-label::after {
+      content: '';
+      position: absolute;
+      width: 10%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #08060400;
+      background: #0a0806;
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.9);
+    }
+
+    #vinyl-label-side {
+      font-family: 'Special Elite', cursive;
+      font-size: clamp(0.55rem, 2.5cqi, 0.9rem);
+      color: #7a3a10;
+      line-height: 1;
+      margin-bottom: 1px;
+      font-weight: bold;
+    }
+    #vinyl-label-artist {
+      font-family: 'Special Elite', cursive;
+      font-size: clamp(0.4rem, 1.8cqi, 0.65rem);
+      color: #3a2010;
+      line-height: 1.15;
+      overflow: hidden;
+      max-height: 26%;
+      word-break: break-word;
+    }
+    #vinyl-label-title {
+      font-size: clamp(0.33rem, 1.4cqi, 0.55rem);
+      color: #5a3818;
+      line-height: 1.15;
+      overflow: hidden;
+      max-height: 22%;
+      word-break: break-word;
+    }
+    #vinyl-label-info {
+      font-size: clamp(0.27rem, 1.1cqi, 0.44rem);
+      color: #9a7040;
+      margin-top: 2px;
+    }
+
+    /* Flip hint */
+    .flip-hint {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      font-size: 0.9rem;
+      color: rgba(212,168,67,0.4);
+      pointer-events: none;
+      transition: color 0.2s;
+      user-select: none;
+      line-height: 1;
+    }
+    #record-jacket:hover .flip-hint { color: rgba(212,168,67,0.85); }
+    #record-jacket.flipped .flip-hint { opacity: 0; }
 
     #album-art {
       width: 100%;
@@ -561,7 +719,7 @@
 
   <!-- TOP BAR -->
   <header id="top-bar">
-    <div id="store-title">&#9835; Record Store</div>
+    <div id="store-title">Record Studio</div>
     <div id="url-row">
       <input id="discogs-url" type="url"
         placeholder="Paste a Discogs seller or artist URL…"
@@ -610,14 +768,34 @@
     <!-- RECORD DISPLAY (hidden until loaded) -->
     <div id="record-display" class="hidden">
       <div id="record-jacket">
-        <img id="album-art" src="" alt="Album cover">
-        <div id="art-skeleton"></div>
-        <div id="no-image-placeholder" class="hidden">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <circle cx="24" cy="24" r="22" stroke="#d4a843" stroke-width="1.5"/>
-            <circle cx="24" cy="24" r="3" fill="#d4a843"/>
-          </svg>
-          <span>No image</span>
+        <div class="flip-inner">
+
+          <!-- FRONT: album art -->
+          <div class="flip-front">
+            <img id="album-art" src="" alt="Album cover">
+            <div id="art-skeleton"></div>
+            <div id="no-image-placeholder" class="hidden">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="24" r="22" stroke="#d4a843" stroke-width="1.5"/>
+                <circle cx="24" cy="24" r="3" fill="#d4a843"/>
+              </svg>
+              <span>No image</span>
+            </div>
+            <div class="flip-hint">↻</div>
+          </div>
+
+          <!-- BACK: vinyl disc -->
+          <div class="flip-back">
+            <div id="vinyl-disc">
+              <div id="vinyl-label">
+                <div id="vinyl-label-side">A</div>
+                <div id="vinyl-label-artist"></div>
+                <div id="vinyl-label-title"></div>
+                <div id="vinyl-label-info"></div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
       <div id="record-caption">
@@ -731,6 +909,10 @@
     const touchNext     = $('touch-next');
     const emptyState    = $('empty-state');
     const recordDisplay = $('record-display');
+    const recordJacket  = $('record-jacket');
+    const vinylLabelArtist = $('vinyl-label-artist');
+    const vinylLabelTitle  = $('vinyl-label-title');
+    const vinylLabelInfo   = $('vinyl-label-info');
     const albumArt      = $('album-art');
     const artSkeleton   = $('art-skeleton');
     const noImage       = $('no-image-placeholder');
@@ -953,9 +1135,17 @@
       const listing = state.listings[state.currentIndex];
       if (!listing) return;
 
+      // Unflip on new record
+      recordJacket.classList.remove('flipped');
+
       // Caption
       captionTitle.textContent = listing.title;
       captionArtist.textContent = listing.artist;
+
+      // Vinyl label
+      vinylLabelArtist.textContent = listing.artist;
+      vinylLabelTitle.textContent  = listing.title;
+      vinylLabelInfo.textContent   = [listing.year, listing.label].filter(Boolean).join(' · ');
 
       // Album art — cross-fade
       albumArt.classList.add('fading');
@@ -1164,6 +1354,12 @@
     nextBtn.addEventListener('click', () => navigate(+1));
     touchPrev.addEventListener('click', () => navigate(-1));
     touchNext.addEventListener('click', () => navigate(+1));
+
+    // ── EVENTS — FLIP ─────────────────────────────────────
+    recordJacket.addEventListener('click', () => {
+      if (state.listings.length === 0) return;
+      recordJacket.classList.toggle('flipped');
+    });
 
 
     // ── EVENTS — MOUSE WHEEL ──────────────────────────────
