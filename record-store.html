@@ -801,6 +801,10 @@
     const loadingInd    = $('loading-indicator');
     const errorMsg      = $('error-msg');
 
+    // ── RESTORE SAVED TOKEN ───────────────────────────────
+    const savedToken = localStorage.getItem('discogs_token');
+    if (savedToken) tokenInput.value = savedToken;
+
     // ── URL PARSING ───────────────────────────────────────
     function parseDiscogsUrl(raw) {
       let url = raw.trim();
@@ -1083,6 +1087,7 @@
       }
 
       state.token = token;
+      localStorage.setItem('discogs_token', token);
       state.query = query;
       state.listings = [];
       state.currentIndex = -1;
