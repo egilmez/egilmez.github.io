@@ -99,27 +99,26 @@
     #load-btn:hover { background: var(--accent-dark); }
     #load-btn:disabled { background: #3a3020; color: #6a5a30; cursor: default; }
 
-    #token-toggle {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-family: inherit;
-      font-size: 0.7rem;
-      cursor: pointer;
-      margin-top: 4px;
-      padding: 0;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-    #token-toggle:hover { color: var(--text); }
-
     #token-row {
       margin-top: 6px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
-    #token-row.hidden { display: none; }
+
+    #token-hint {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    #token-hint a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    #token-hint a:hover { text-decoration: underline; }
 
     #discogs-token {
-      width: 100%;
+      flex: 1;
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
@@ -531,11 +530,17 @@
         autocomplete="off" spellcheck="false">
       <button id="load-btn">Load</button>
     </div>
-    <button id="token-toggle">+ use personal token (higher rate limits)</button>
-    <div id="token-row" class="hidden">
+    <div id="token-row">
       <input id="discogs-token" type="password"
-        placeholder="Discogs personal access token (optional)"
+        placeholder="Discogs token (required)"
         autocomplete="off">
+    </div>
+    <div id="token-hint">
+      Free token required &mdash;
+      <a href="https://www.discogs.com/settings/developers" target="_blank" rel="noopener">
+        discogs.com/settings/developers
+      </a>
+      &rarr; Generate token &rarr; paste above
     </div>
   </header>
 
@@ -552,10 +557,13 @@
         <circle cx="36" cy="36" r="5" fill="#d4a843" opacity="0.5"/>
       </svg>
       <h2>Drop the needle</h2>
-      <p>Paste a Discogs URL above to start browsing.<br>
-        Try a seller profile:<br>
+      <p>
+        1. Get a free token at
+        <a href="https://www.discogs.com/settings/developers" target="_blank" rel="noopener"
+           style="color:var(--accent);text-decoration:none;">discogs.com/settings/developers</a>
+        &rarr; Generate token &rarr; paste it above.<br><br>
+        2. Paste a Discogs URL:<br>
         <code>discogs.com/seller/USERNAME/profile</code><br>
-        or an artist marketplace:<br>
         <code>discogs.com/sell/list?artist_id=…</code>
       </p>
     </div>
@@ -677,7 +685,6 @@
     const $ = id => document.getElementById(id);
     const urlInput      = $('discogs-url');
     const tokenInput    = $('discogs-token');
-    const tokenToggle   = $('token-toggle');
     const tokenRow      = $('token-row');
     const loadBtn       = $('load-btn');
     const prevBtn       = $('prev-btn');
@@ -709,14 +716,6 @@
     const paginationCtr = $('pagination-counter');
     const loadingInd    = $('loading-indicator');
     const errorMsg      = $('error-msg');
-
-    // ── TOKEN TOGGLE ──────────────────────────────────────
-    tokenToggle.addEventListener('click', () => {
-      tokenRow.classList.toggle('hidden');
-      tokenToggle.textContent = tokenRow.classList.contains('hidden')
-        ? '+ use personal token (higher rate limits)'
-        : '− hide token';
-    });
 
     // ── URL PARSING ───────────────────────────────────────
     function parseDiscogsUrl(raw) {
@@ -998,13 +997,20 @@
       const raw = urlInput.value.trim();
       if (!raw) return;
 
+      const token = tokenInput.value.trim();
+      if (!token) {
+        showError('A Discogs token is required. Get one free at discogs.com/settings/developers → Generate token.');
+        tokenInput.focus();
+        return;
+      }
+
       const query = parseDiscogsUrl(raw);
       if (!query) {
         showError('Could not parse URL. Paste a full Discogs seller or artist URL.');
         return;
       }
 
-      state.token = tokenInput.value.trim();
+      state.token = token;
       state.query = query;
       state.listings = [];
       state.currentIndex = -1;
