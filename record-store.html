@@ -662,14 +662,7 @@
   (() => {
     'use strict';
 
-    // ── CORS PROXIES (tried in order until one works) ─────
-    // User-Agent is a forbidden header in browsers; omit it to avoid
-    // triggering a CORS preflight that some proxies reject.
-    const PROXIES = [
-      url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-      url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-      url => `https://corsproxy.org/?${encodeURIComponent(url)}`,
-    ];
+    const API = 'https://api.discogs.com';
 
     // ── STATE ─────────────────────────────────────────────
     const state = {
@@ -744,55 +737,34 @@
     }
 
     function buildApiUrl(query, page) {
-      const base = 'https://api.discogs.com';
       if (query.type === 'seller') {
-        return `${base}/users/${encodeURIComponent(query.username)}/inventory?status=For+Sale&sort=listed&sort_order=desc&per_page=100&page=${page}`;
+        return `${API}/users/${encodeURIComponent(query.username)}/inventory?status=For+Sale&sort=listed&sort_order=desc&per_page=100&page=${page}`;
       }
       if (query.type === 'artist') {
-        return `${base}/marketplace/search?artist_id=${query.artistId}&per_page=50&page=${page}`;
+        return `${API}/marketplace/search?artist_id=${query.artistId}&per_page=50&page=${page}`;
       }
       if (query.type === 'release') {
-        return `${base}/marketplace/search?release_id=${query.releaseId}&per_page=50&page=${page}`;
+        return `${API}/marketplace/search?release_id=${query.releaseId}&per_page=50&page=${page}`;
       }
       if (query.type === 'label') {
-        return `${base}/marketplace/search?label_id=${query.labelId}&per_page=50&page=${page}`;
+        return `${API}/marketplace/search?label_id=${query.labelId}&per_page=50&page=${page}`;
       }
       return null;
     }
 
-    // ── API FETCH ─────────────────────────────────────────
+    // ── API FETCH — direct to Discogs, no third-party proxy ──
     async function fetchPage(query, page) {
-      const apiUrl = buildApiUrl(query, page);
-      if (!apiUrl) throw new Error('Unsupported URL type');
+      const url = buildApiUrl(query, page);
+      if (!url) throw new Error('Unsupported URL type');
 
-      // Only send Authorization header when a token is provided.
-      // Avoid any custom headers for anonymous requests to prevent
-      // CORS preflight failures (esp. on iOS Safari).
-      const headers = {};
-      if (state.token) headers['Authorization'] = `Discogs token=${state.token}`;
-
-      let lastErr = null;
-      for (const makeUrl of PROXIES) {
-        try {
-          const res = await fetch(makeUrl(apiUrl), { headers });
-          if (res.status === 404) throw new Error('Not found — check the URL and try again.');
-          if (res.status === 401 || res.status === 403) throw new Error('Access denied. Try adding a personal token.');
-          if (res.status === 429) throw new Error('Rate limited by Discogs. Wait a moment and try again.');
-          if (!res.ok) throw new Error(`Request failed (HTTP ${res.status}).`);
-          return await res.json();
-        } catch (err) {
-          // Re-throw API-level errors immediately; only retry on network failures
-          if (err.message && (
-            err.message.startsWith('Not found') ||
-            err.message.startsWith('Access denied') ||
-            err.message.startsWith('Rate limited') ||
-            err.message.startsWith('Request failed')
-          )) throw err;
-          lastErr = err;
-          // Continue to next proxy
-        }
-      }
-      throw new Error(`Network error — all proxies failed. Check your connection and try again. (${lastErr && lastErr.message})`);
+      const res = await fetch(url, {
+        headers: { 'Authorization': `Discogs token=${state.token}` }
+      });
+      if (res.status === 401 || res.status === 403) throw new Error('Token invalid or expired — check discogs.com/settings/developers.');
+      if (res.status === 404) throw new Error('Not found — double-check the URL.');
+      if (res.status === 429) throw new Error('Rate limited by Discogs. Wait a moment and try again.');
+      if (!res.ok) throw new Error(`Discogs returned HTTP ${res.status}.`);
+      return res.json();
     }
 
     // ── NORMALISE ─────────────────────────────────────────
