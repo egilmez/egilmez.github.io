@@ -816,7 +816,7 @@
         return `${API}/users/${encodeURIComponent(query.username)}/inventory?status=For+Sale&sort=listed&sort_order=desc&per_page=100&page=${page}`;
       }
       if (query.type === 'artist') {
-        return `${API}/marketplace/search?artist=${encodeURIComponent(query.artistName)}&per_page=50&page=${page}`;
+        return `${API}/database/search?artist=${encodeURIComponent(query.artistName)}&type=release&per_page=50&page=${page}`;
       }
       if (query.type === 'release') {
         return `${API}/marketplace/search?release_id=${query.releaseId}&per_page=50&page=${page}`;
@@ -854,9 +854,32 @@
     }
 
     // ── NORMALISE ─────────────────────────────────────────
-    // Both /inventory and /marketplace/search return `listings[]`
-    // but with different field shapes. Normalise to a common object.
+    // /inventory, /marketplace/search, and /database/search all return
+    // different shapes. Normalise to a common object.
     function normalizeListing(raw) {
+      // Database search result shape (artist browse via /database/search)
+      if (raw.community !== undefined) {
+        return {
+          id: raw.id,
+          title: raw.title || '(Unknown)',
+          artist: state.query.artistName || '',
+          year: raw.year || '',
+          label: Array.isArray(raw.label) ? raw.label.join(', ') : (raw.label || ''),
+          format: Array.isArray(raw.format) ? raw.format.join(', ') : (raw.format || ''),
+          imageUrl: raw.cover_image || raw.thumb || '',
+          price: '—',
+          allowOffers: false,
+          condition: '',
+          sleeveCondition: '',
+          shipsFrom: '',
+          sellerName: '',
+          sellerRating: null,
+          sellerFeedback: null,
+          comments: '',
+          listingUrl: `https://www.discogs.com/sell/release/${raw.id}`
+        };
+      }
+
       // Inventory response shape
       if (raw.release && raw.price) {
         const r = raw.release;
@@ -1028,7 +1051,7 @@
       try {
         const nextPage = state.pagination.page + 1;
         const data = await fetchPage(state.query, nextPage);
-        const raw = data.listings || [];
+        const raw = data.listings || data.results || [];
         const normalized = raw.reduce((acc, item) => {
           try { acc.push(normalizeListing(item)); } catch (_) { /* skip malformed listing */ }
           return acc;
