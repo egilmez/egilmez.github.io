@@ -379,6 +379,25 @@
     }
     #add-to-cart-btn:hover { background: var(--accent-dark); }
 
+    #search-links {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    #search-links a {
+      flex: 1;
+      text-align: center;
+      padding: 7px 4px;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      text-decoration: none;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    #search-links a:hover { color: var(--accent); border-color: var(--accent); }
+
     /* ── TOUCH NAV ROW (mobile only) ─────────────────────── */
     #touch-nav-row {
       display: none;
@@ -638,6 +657,12 @@
           <p id="meta-comments" class="hidden"></p>
 
           <button id="add-to-cart-btn">View on Discogs ↗</button>
+
+          <div id="search-links">
+            <a id="search-youtube"   target="_blank" rel="noopener noreferrer">YouTube ↗</a>
+            <a id="search-bandcamp"  target="_blank" rel="noopener noreferrer">Bandcamp ↗</a>
+            <a id="search-soundcloud" target="_blank" rel="noopener noreferrer">SoundCloud ↗</a>
+          </div>
         </div>
 
       </div>
@@ -895,6 +920,11 @@
       }
 
       addToCartBtn.onclick = () => window.open(listing.listingUrl, '_blank', 'noopener,noreferrer');
+
+      const q = encodeURIComponent(`${listing.artist} ${listing.title}`);
+      $('search-youtube').href    = `https://www.youtube.com/results?search_query=${q}`;
+      $('search-bandcamp').href   = `https://bandcamp.com/search?q=${q}`;
+      $('search-soundcloud').href = `https://soundcloud.com/search?q=${q}`;
 
       // Pagination
       const total = state.pagination.totalItems || state.listings.length;
