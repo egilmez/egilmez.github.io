@@ -692,6 +692,7 @@
     }
     #stores-empty.hidden { display: none; }
     .store-card {
+      position: relative;
       display: flex;
       flex-direction: column;
       border: 1px solid var(--border);
@@ -704,6 +705,32 @@
     .store-card:hover {
       border-color: var(--accent);
       transform: translateY(-2px);
+    }
+    .store-card-remove {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      border: none;
+      color: #fff;
+      font-size: 0.75rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s, background 0.15s;
+      z-index: 2;
+    }
+    .store-card:hover .store-card-remove {
+      opacity: 1;
+    }
+    .store-card-remove:hover {
+      background: rgba(180,30,30,0.85);
     }
     .store-card-thumb {
       width: 100%;
@@ -1256,6 +1283,7 @@
         const locationHtml = s.location ? `<div class="store-card-location">&#128205; ${s.location.replace(/</g, '&lt;')}</div>` : '';
         const avatarHtml = avatarStyle ? `<div class="store-card-avatar" style="${avatarStyle}"></div>` : '';
         return `<div class="store-card" data-url="${url.replace(/"/g, '&quot;')}">
+          <button class="store-card-remove" title="Remove from history">&#x2715;</button>
           <div class="store-card-thumb" style="${thumbStyle}"></div>
           <div class="store-card-info">
             ${avatarHtml}
@@ -1268,6 +1296,14 @@
         </div>`;
       }).join('');
       grid.querySelectorAll('.store-card').forEach(card => {
+        card.querySelector('.store-card-remove').addEventListener('click', e => {
+          e.stopPropagation();
+          const key = 'discogs_stores';
+          let stores = JSON.parse(localStorage.getItem(key) || '[]');
+          stores = stores.filter(s => s.url !== card.dataset.url);
+          localStorage.setItem(key, JSON.stringify(stores));
+          renderStoresHistory();
+        });
         card.addEventListener('click', () => {
           urlInput.value = card.dataset.url;
           switchTab('browse');
