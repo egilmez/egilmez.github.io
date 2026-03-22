@@ -979,6 +979,7 @@
         &rarr; Generate token &rarr; paste it via the ⚙ button below.<br><br>
         2. Paste a Discogs URL:<br>
         <code>discogs.com/seller/USERNAME/profile</code><br>
+        <code>discogs.com/user/USERNAME</code><br>
         <code>discogs.com/sell/list?artist_id=…</code>
       </p>
     </div>
@@ -1318,6 +1319,10 @@
       // seller: /seller/USERNAME/profile
       const seller = url.match(/discogs\.com\/seller\/([^/?#\s]+)/);
       if (seller) return { type: 'seller', username: seller[1], rawUrl: raw };
+
+      // user profile: /user/USERNAME
+      const userProfile = url.match(/discogs\.com\/user\/([^/?#\s]+)/);
+      if (userProfile) return { type: 'seller', username: userProfile[1], rawUrl: raw };
 
       // artist marketplace: ?artist_id=123
       const artist = url.match(/[?&]artist_id=(\d+)/);
