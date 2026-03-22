@@ -67,7 +67,6 @@
       font-size: 1rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
-      margin-bottom: 8px;
       opacity: 0.9;
       display: flex;
       align-items: center;
@@ -635,24 +634,225 @@
       #discogs-url { font-size: 0.75rem; }
       #caption-title { font-size: 0.95rem; }
     }
+
+    /* ── STORE TITLE ROW + TABS ───────────────────────────── */
+    #store-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    #store-title {
+      margin-bottom: 0;
+    }
+    #tab-row {
+      display: flex;
+      gap: 4px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 12px;
+      font-family: 'Special Elite', cursive;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .tab-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .tab-btn.active {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── STORES PANEL ─────────────────────────────────────── */
+    #stores-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    #stores-panel.hidden { display: none; }
+    #stores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    #stores-empty {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    #stores-empty.hidden { display: none; }
+    .store-card {
+      position: relative;
+      aspect-ratio: 1;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--surface2);
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .store-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .store-card-thumb {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-color: var(--surface);
+    }
+    .store-card-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.85));
+      padding: 20px 8px 8px;
+    }
+    .store-card-name {
+      font-family: 'Special Elite', cursive;
+      font-size: 0.8rem;
+      color: var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .store-card-url {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    /* ── FILTER BAR ───────────────────────────────────────── */
+    #filter-toggle-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 7px 11px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: color 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+    #filter-toggle-btn:hover { color: var(--accent); border-color: var(--accent); }
+    #filter-toggle-btn.active { color: var(--accent); border-color: var(--accent); background: var(--accent-glow); }
+    #filter-bar {
+      margin-top: 6px;
+      padding: 8px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    #filter-bar.hidden { display: none; }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+    }
+    .filter-group label { white-space: nowrap; }
+    .filter-num {
+      width: 64px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 6px;
+      font-family: inherit;
+      font-size: 0.73rem;
+      border-radius: 2px;
+      outline: none;
+    }
+    .filter-num:focus { border-color: var(--accent); }
+    .filter-select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 6px;
+      font-family: inherit;
+      font-size: 0.73rem;
+      border-radius: 2px;
+      outline: none;
+      max-width: 130px;
+    }
+    .filter-select:focus { border-color: var(--accent); }
+    #f-format-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .format-chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 2px 8px;
+      font-size: 0.68rem;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: color 0.12s, border-color 0.12s, background 0.12s;
+    }
+    .format-chip.active {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    #f-clear-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      font-family: inherit;
+      font-size: 0.72rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: color 0.12s, border-color 0.12s;
+      margin-left: auto;
+    }
+    #f-clear-btn:hover { color: var(--red); border-color: var(--red); }
   </style>
 </head>
 <body>
 
   <!-- TOP BAR -->
   <header id="top-bar">
-    <div id="store-title">Record Studio</div>
+    <div id="store-title-row">
+      <div id="store-title">Record Studio</div>
+      <div id="tab-row">
+        <button class="tab-btn active" id="tab-browse">Browse</button>
+        <button class="tab-btn" id="tab-stores">Stores</button>
+      </div>
+    </div>
     <div id="url-row">
       <input id="discogs-url" type="url"
         placeholder="Paste a Discogs seller or artist URL…"
         autocomplete="off" spellcheck="false" list="url-history">
       <datalist id="url-history"></datalist>
+      <button id="filter-toggle-btn">Filters</button>
       <button id="load-btn">Load</button>
     </div>
     <div id="token-row">
-      <input id="discogs-token" type="password"
+      <input id="discogs-token" type="text"
         placeholder="Discogs token (required)"
-        autocomplete="off">
+        autocomplete="off" spellcheck="false">
     </div>
     <div id="token-hint">
       Free token required &mdash;
@@ -660,6 +860,25 @@
         discogs.com/settings/developers
       </a>
       &rarr; Generate token &rarr; paste above
+    </div>
+    <div id="filter-bar" class="hidden">
+      <div class="filter-group">
+        <label>Price</label>
+        <input class="filter-num" id="f-price-min" type="number" min="0" placeholder="min">
+        <span>–</span>
+        <input class="filter-num" id="f-price-max" type="number" min="0" placeholder="max">
+      </div>
+      <div class="filter-group">
+        <label>Ships from</label>
+        <select class="filter-select" id="f-ships-from">
+          <option value="">All</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Format</label>
+        <div id="f-format-chips"></div>
+      </div>
+      <button id="f-clear-btn">Clear</button>
     </div>
   </header>
 
@@ -775,6 +994,12 @@
 
   </div>
 
+  <!-- STORES HISTORY PANEL -->
+  <div id="stores-panel" class="hidden">
+    <div id="stores-grid"></div>
+    <div id="stores-empty" class="hidden">No stores visited yet. Load a seller or artist URL to start your history.</div>
+  </div>
+
   <!-- TOUCH NAV (mobile) -->
   <div id="touch-nav-row">
     <button class="touch-nav-btn" id="touch-prev">&#8592;</button>
@@ -801,8 +1026,25 @@
       pagination: { page: 0, pages: 1, totalItems: 0 },
       loading: false,
       query: null,
-      token: ''
+      token: '',
+      filters: { priceMin: '', priceMax: '', formats: [], shipsFrom: '' }
     };
+
+    // ── FILTERED LISTING VIEW ─────────────────────────────
+    function getVisibleListings() {
+      const f = state.filters;
+      return state.listings.filter(l => {
+        if (f.priceMin !== '' || f.priceMax !== '') {
+          const num = parseFloat(l.price.replace(/[^0-9.]/g, ''));
+          if (isNaN(num)) return false;
+          if (f.priceMin !== '' && num < parseFloat(f.priceMin)) return false;
+          if (f.priceMax !== '' && num > parseFloat(f.priceMax)) return false;
+        }
+        if (f.formats.length > 0 && !f.formats.some(fmt => l.format.includes(fmt))) return false;
+        if (f.shipsFrom && l.shipsFrom !== f.shipsFrom) return false;
+        return true;
+      });
+    }
 
     // ── DOM REFS ──────────────────────────────────────────
     const $ = id => document.getElementById(id);
@@ -861,6 +1103,77 @@
       dl.innerHTML = hist.map(u => `<option value="${u.replace(/"/g, '&quot;')}">`).join('');
     })();
 
+    // ── STORES HISTORY ────────────────────────────────────
+    function saveStore() {
+      if (!state.query) return;
+      const name = state.query.username || state.query.artistName || state.query.artistId || state.query.rawUrl || '';
+      const thumb = state.listings[0] ? state.listings[0].imageUrl : '';
+      const key = 'discogs_stores';
+      let stores = JSON.parse(localStorage.getItem(key) || '[]');
+      const entry = { url: state.query.rawUrl || '', name, thumb, visitedAt: new Date().toISOString() };
+      stores = [entry, ...stores.filter(s => s.url !== entry.url)].slice(0, 30);
+      localStorage.setItem(key, JSON.stringify(stores));
+      renderStoresHistory();
+    }
+
+    function renderStoresHistory() {
+      const key = 'discogs_stores';
+      const stores = JSON.parse(localStorage.getItem(key) || '[]');
+      const grid = $('stores-grid');
+      const empty = $('stores-empty');
+      if (stores.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      grid.innerHTML = stores.map(s => {
+        const displayUrl = s.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+        const thumbStyle = s.thumb ? `background-image:url('${s.thumb.replace(/'/g, "\\'")}')` : '';
+        return `<div class="store-card" data-url="${s.url.replace(/"/g, '&quot;')}">
+          <div class="store-card-thumb" style="${thumbStyle}"></div>
+          <div class="store-card-overlay">
+            <div class="store-card-name">${s.name.replace(/</g, '&lt;')}</div>
+            <div class="store-card-url">${displayUrl.replace(/</g, '&lt;')}</div>
+          </div>
+        </div>`;
+      }).join('');
+      grid.querySelectorAll('.store-card').forEach(card => {
+        card.addEventListener('click', () => {
+          urlInput.value = card.dataset.url;
+          switchTab('browse');
+          startLoad();
+        });
+      });
+    }
+
+    // Populate stores history on page load
+    renderStoresHistory();
+
+    // ── TAB SWITCHING ──────────────────────────────────────
+    const stage     = $('stage');
+    const storesPanel = $('stores-panel');
+
+    function switchTab(tab) {
+      const tabBrowse = $('tab-browse');
+      const tabStores = $('tab-stores');
+      if (tab === 'browse') {
+        stage.classList.remove('hidden');
+        storesPanel.classList.add('hidden');
+        tabBrowse.classList.add('active');
+        tabStores.classList.remove('active');
+      } else {
+        stage.classList.add('hidden');
+        storesPanel.classList.remove('hidden');
+        tabBrowse.classList.remove('active');
+        tabStores.classList.add('active');
+        renderStoresHistory();
+      }
+    }
+
+    $('tab-browse').addEventListener('click', () => switchTab('browse'));
+    $('tab-stores').addEventListener('click', () => switchTab('stores'));
+
     // ── SHAREABLE URL — restore from ?url= on page load ───
     (function restoreSharedUrl() {
       const params = new URLSearchParams(window.location.search);
@@ -878,21 +1191,21 @@
 
       // seller: /seller/USERNAME/profile
       const seller = url.match(/discogs\.com\/seller\/([^/?#\s]+)/);
-      if (seller) return { type: 'seller', username: seller[1] };
+      if (seller) return { type: 'seller', username: seller[1], rawUrl: raw };
 
       // artist marketplace: ?artist_id=123
       const artist = url.match(/[?&]artist_id=(\d+)/);
-      if (artist) return { type: 'artist', artistId: artist[1] };
+      if (artist) return { type: 'artist', artistId: artist[1], rawUrl: raw };
 
       // release marketplace: ?release_id=123 or /sell/release/123
       const releaseQ = url.match(/[?&]release_id=(\d+)/);
-      if (releaseQ) return { type: 'release', releaseId: releaseQ[1] };
+      if (releaseQ) return { type: 'release', releaseId: releaseQ[1], rawUrl: raw };
       const releaseP = url.match(/\/sell\/release\/(\d+)/);
-      if (releaseP) return { type: 'release', releaseId: releaseP[1] };
+      if (releaseP) return { type: 'release', releaseId: releaseP[1], rawUrl: raw };
 
       // label: ?label_id=123
       const label = url.match(/[?&]label_id=(\d+)/);
-      if (label) return { type: 'label', labelId: label[1] };
+      if (label) return { type: 'label', labelId: label[1], rawUrl: raw };
 
       return null;
     }
@@ -1036,7 +1349,8 @@
 
     // ── RENDER ────────────────────────────────────────────
     function renderContent(quick = false) {
-      const listing = state.listings[state.currentIndex];
+      const visible = getVisibleListings();
+      const listing = visible[state.currentIndex];
       if (!listing) return;
 
       // Caption
@@ -1129,12 +1443,14 @@
       $('search-soundcloud').href   = `https://soundcloud.com/search?q=${q}`;
 
       // Pagination
-      const total = state.pagination.totalItems || state.listings.length;
-      paginationCtr.textContent = `${state.currentIndex + 1} / ${total}`;
+      const filterActive = state.filters.priceMin !== '' || state.filters.priceMax !== '' || state.filters.formats.length > 0 || state.filters.shipsFrom;
+      const total = filterActive ? visible.length : (state.pagination.totalItems || state.listings.length);
+      const suffix = filterActive ? ` (${visible.length} filtered)` : '';
+      paginationCtr.textContent = `${state.currentIndex + 1} / ${total}${suffix}`;
 
       // Nav buttons
       prevBtn.disabled = state.currentIndex <= 0;
-      nextBtn.disabled = state.currentIndex >= state.listings.length - 1 && state.pagination.page >= state.pagination.pages;
+      nextBtn.disabled = state.currentIndex >= visible.length - 1 && state.pagination.page >= state.pagination.pages;
       touchPrev.disabled = prevBtn.disabled;
       touchNext.disabled = nextBtn.disabled;
     }
@@ -1148,9 +1464,10 @@
 
     function navigate(delta) {
       if (state.loading || animating) return;
+      const visible = getVisibleListings();
       const next = state.currentIndex + delta;
       if (next < 0) return;
-      if (next >= state.listings.length) {
+      if (next >= visible.length) {
         if (state.pagination.page < state.pagination.pages) loadNextPage();
         return;
       }
@@ -1184,7 +1501,7 @@
         }));
 
         // Prefetch if near end
-        if (state.listings.length - next < 10 && state.pagination.page < state.pagination.pages) {
+        if (visible.length - next < 10 && state.pagination.page < state.pagination.pages) {
           loadNextPage();
         }
       }, 210);
@@ -1211,13 +1528,16 @@
         state.pagination.pages = pg.pages || 1;
         state.pagination.totalItems = pg.items || state.listings.length;
 
-        // If navigating forward was pending
+        // If navigating forward was pending (first page)
         if (state.currentIndex < 0 && state.listings.length > 0) {
           state.currentIndex = 0;
           showRecordDisplay();
           render();
+          saveStore(); // record this store in history
+          rebuildFilterOptions();
         } else {
           render();
+          rebuildFilterOptions();
         }
       } catch (err) {
         showError(err.message);
@@ -1252,6 +1572,11 @@
       state.currentIndex = -1;
       state.pagination = { page: 0, pages: 1, totalItems: 0 };
       state.loading = false;
+      state.filters = { priceMin: '', priceMax: '', formats: [], shipsFrom: '' };
+      $('f-price-min').value = '';
+      $('f-price-max').value = '';
+      $('f-ships-from').innerHTML = '<option value="">All</option>';
+      $('f-format-chips').innerHTML = '';
 
       hideError();
       showLoadingSkeleton();
@@ -1293,6 +1618,76 @@
       errorMsg.textContent = '';
       errorMsg.classList.add('hidden');
     }
+
+    // ── FILTERS ───────────────────────────────────────────
+    function rebuildFilterOptions() {
+      // Ships-from select
+      const shipsSelect = $('f-ships-from');
+      const currentShips = shipsSelect.value;
+      const locations = [...new Set(state.listings.map(l => l.shipsFrom).filter(Boolean))].sort();
+      shipsSelect.innerHTML = '<option value="">All</option>' +
+        locations.map(loc => `<option value="${loc.replace(/"/g, '&quot;')}"${loc === currentShips ? ' selected' : ''}>${loc.replace(/</g, '&lt;')}</option>`).join('');
+
+      // Format chips
+      const chipsWrap = $('f-format-chips');
+      const formats = [...new Set(
+        state.listings.flatMap(l => l.format.split(',').map(f => f.trim()).filter(Boolean))
+      )].sort();
+      const activeFormats = state.filters.formats;
+      chipsWrap.innerHTML = formats.map(fmt =>
+        `<button class="format-chip${activeFormats.includes(fmt) ? ' active' : ''}" data-fmt="${fmt.replace(/"/g, '&quot;')}">${fmt.replace(/</g, '&lt;')}</button>`
+      ).join('');
+      chipsWrap.querySelectorAll('.format-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const fmt = chip.dataset.fmt;
+          if (state.filters.formats.includes(fmt)) {
+            state.filters.formats = state.filters.formats.filter(f => f !== fmt);
+            chip.classList.remove('active');
+          } else {
+            state.filters.formats.push(fmt);
+            chip.classList.add('active');
+          }
+          applyFilters();
+        });
+      });
+    }
+
+    function applyFilters() {
+      state.currentIndex = 0;
+      const visible = getVisibleListings();
+      if (visible.length === 0) {
+        paginationCtr.textContent = '0 / 0 (filtered)';
+        prevBtn.disabled = true; nextBtn.disabled = true;
+        touchPrev.disabled = true; touchNext.disabled = true;
+        return;
+      }
+      render();
+    }
+
+    // Filter toggle
+    $('filter-toggle-btn').addEventListener('click', () => {
+      const bar = $('filter-bar');
+      const btn = $('filter-toggle-btn');
+      bar.classList.toggle('hidden');
+      btn.classList.toggle('active');
+    });
+
+    // Price inputs
+    $('f-price-min').addEventListener('input', e => { state.filters.priceMin = e.target.value; applyFilters(); });
+    $('f-price-max').addEventListener('input', e => { state.filters.priceMax = e.target.value; applyFilters(); });
+
+    // Ships-from select
+    $('f-ships-from').addEventListener('change', e => { state.filters.shipsFrom = e.target.value; applyFilters(); });
+
+    // Clear button
+    $('f-clear-btn').addEventListener('click', () => {
+      state.filters = { priceMin: '', priceMax: '', formats: [], shipsFrom: '' };
+      $('f-price-min').value = '';
+      $('f-price-max').value = '';
+      $('f-ships-from').value = '';
+      $('f-format-chips').querySelectorAll('.format-chip').forEach(c => c.classList.remove('active'));
+      applyFilters();
+    });
 
     // ── EVENTS — LOAD ─────────────────────────────────────
     loadBtn.addEventListener('click', startLoad);
