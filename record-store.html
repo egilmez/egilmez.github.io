@@ -692,8 +692,8 @@
     }
     #stores-empty.hidden { display: none; }
     .store-card {
-      position: relative;
-      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
       border: 1px solid var(--border);
       border-radius: 2px;
       overflow: hidden;
@@ -706,19 +706,32 @@
       transform: translateY(-2px);
     }
     .store-card-thumb {
-      position: absolute;
-      inset: 0;
+      width: 100%;
+      aspect-ratio: 1;
       background-size: cover;
       background-position: center;
       background-color: var(--surface);
+      flex-shrink: 0;
     }
-    .store-card-overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(transparent, rgba(0,0,0,0.85));
-      padding: 20px 8px 8px;
+    .store-card-info {
+      padding: 8px 10px 9px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .store-card-avatar {
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      margin-top: 1px;
+    }
+    .store-card-text {
+      min-width: 0;
     }
     .store-card-name {
       font-family: 'Special Elite', cursive;
@@ -728,33 +741,22 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .store-card-url {
+    .store-card-location {
       font-size: 0.62rem;
       color: var(--text-muted);
+      margin-top: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-top: 2px;
     }
-    .store-card-location {
+    .store-card-url {
       font-size: 0.6rem;
       color: var(--text-muted);
-      margin-top: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-    .store-card-avatar {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background-size: cover;
-      background-position: center;
-      background-color: var(--surface);
-      border: 2px solid var(--border);
+      margin-top: 1px;
+      opacity: 0.7;
     }
 
     /* ── FILTER TOGGLE BUTTON (in URL row) ───────────────── */
@@ -1249,13 +1251,16 @@
         const thumbStyle  = s.thumb  ? `background-image:url('${s.thumb.replace(/'/g, "\\'")}')` : '';
         const avatarStyle = s.avatar ? `background-image:url('${s.avatar.replace(/'/g, "\\'")}')` : '';
         const locationHtml = s.location ? `<div class="store-card-location">&#128205; ${s.location.replace(/</g, '&lt;')}</div>` : '';
+        const avatarHtml = avatarStyle ? `<div class="store-card-avatar" style="${avatarStyle}"></div>` : '';
         return `<div class="store-card" data-url="${s.url.replace(/"/g, '&quot;')}">
           <div class="store-card-thumb" style="${thumbStyle}"></div>
-          ${avatarStyle ? `<div class="store-card-avatar" style="${avatarStyle}"></div>` : ''}
-          <div class="store-card-overlay">
-            <div class="store-card-name">${s.name.replace(/</g, '&lt;')}</div>
-            ${locationHtml}
-            <div class="store-card-url">${displayUrl.replace(/</g, '&lt;')}</div>
+          <div class="store-card-info">
+            ${avatarHtml}
+            <div class="store-card-text">
+              <div class="store-card-name">${s.name.replace(/</g, '&lt;')}</div>
+              ${locationHtml}
+              <div class="store-card-url">${displayUrl.replace(/</g, '&lt;')}</div>
+            </div>
           </div>
         </div>`;
       }).join('');
