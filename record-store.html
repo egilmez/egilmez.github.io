@@ -1248,17 +1248,19 @@
       }
       empty.classList.add('hidden');
       grid.innerHTML = stores.map(s => {
-        const displayUrl = s.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+        const url  = s.url  || '';
+        const name = s.name || url || '—';
+        const displayUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
         const thumbStyle  = s.thumb  ? `background-image:url('${s.thumb.replace(/'/g, "\\'")}')` : '';
         const avatarStyle = s.avatar ? `background-image:url('${s.avatar.replace(/'/g, "\\'")}')` : '';
         const locationHtml = s.location ? `<div class="store-card-location">&#128205; ${s.location.replace(/</g, '&lt;')}</div>` : '';
         const avatarHtml = avatarStyle ? `<div class="store-card-avatar" style="${avatarStyle}"></div>` : '';
-        return `<div class="store-card" data-url="${s.url.replace(/"/g, '&quot;')}">
+        return `<div class="store-card" data-url="${url.replace(/"/g, '&quot;')}">
           <div class="store-card-thumb" style="${thumbStyle}"></div>
           <div class="store-card-info">
             ${avatarHtml}
             <div class="store-card-text">
-              <div class="store-card-name">${s.name.replace(/</g, '&lt;')}</div>
+              <div class="store-card-name">${name.replace(/</g, '&lt;')}</div>
               ${locationHtml}
               <div class="store-card-url">${displayUrl.replace(/</g, '&lt;')}</div>
             </div>
@@ -1320,9 +1322,9 @@
       const seller = url.match(/discogs\.com\/seller\/([^/?#\s]+)/);
       if (seller) return { type: 'seller', username: seller[1], rawUrl: raw };
 
-      // user profile: /user/USERNAME
+      // user profile: /user/USERNAME — normalize to canonical seller URL
       const userProfile = url.match(/discogs\.com\/user\/([^/?#\s]+)/);
-      if (userProfile) return { type: 'seller', username: userProfile[1], rawUrl: raw };
+      if (userProfile) return { type: 'seller', username: userProfile[1], rawUrl: `https://www.discogs.com/seller/${userProfile[1]}/profile` };
 
       // artist marketplace: ?artist_id=123
       const artist = url.match(/[?&]artist_id=(\d+)/);
