@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Record Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header id="top-bar">
+    <div id="store-title-row">
+      <div id="store-title">Record Studio</div>
+      <div id="tab-row">
+        <button class="tab-btn active" id="tab-browse">Browse</button>
+        <button class="tab-btn" id="tab-stores">Stores</button>
+      </div>
+    </div>
+    <div id="url-row">
+      <input id="discogs-url" type="url"
+        placeholder="Paste a Discogs seller or artist URL…"
+        autocomplete="off" spellcheck="false" list="url-history">
+      <datalist id="url-history"></datalist>
+      <button id="filter-toggle-btn">Filters</button>
+      <button id="load-btn">Load</button>
+    </div>
+  </header>
+
+  <!-- STAGE -->
+  <div id="stage">
+
+    <!-- FILTER SIDEBAR -->
+    <div id="filter-sidebar" class="hidden">
+      <div id="filter-sidebar-inner">
+        <div class="filter-sidebar-header">
+          <span>Filters</span>
+          <button id="filter-sidebar-close" aria-label="Close filters">&#10005;</button>
+        </div>
+        <div class="filter-group-vert">
+          <label>Price range</label>
+          <div class="price-range-row">
+            <input class="filter-num" id="f-price-min" type="number" min="0" placeholder="min">
+            <span>–</span>
+            <input class="filter-num" id="f-price-max" type="number" min="0" placeholder="max">
+          </div>
+        </div>
+        <div class="filter-group-vert">
+          <label>Format</label>
+          <div id="f-format-chips"></div>
+        </div>
+        <button id="f-clear-btn">Clear filters</button>
+      </div>
+    </div>
+
+    <button class="nav-arrow" id="prev-btn" disabled aria-label="Previous">&#8592;</button>
+
+    <!-- EMPTY STATE (shown on first load) -->
+    <div id="empty-state">
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="36" cy="36" r="34" stroke="#d4a843" stroke-width="2"/>
+        <circle cx="36" cy="36" r="22" stroke="#d4a843" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <circle cx="36" cy="36" r="5" fill="#d4a843" opacity="0.5"/>
+      </svg>
+      <h2>Drop the needle</h2>
+      <p>
+        1. Get a free token at
+        <a href="https://www.discogs.com/settings/developers" target="_blank" rel="noopener"
+           style="color:var(--accent);text-decoration:none;">discogs.com/settings/developers</a>
+        &rarr; Generate token &rarr; paste it via the ⚙ button below.<br><br>
+        2. Paste a Discogs URL:<br>
+        <code>discogs.com/seller/USERNAME/profile</code><br>
+        <code>discogs.com/user/USERNAME</code><br>
+        <code>discogs.com/sell/list?artist_id=…</code>
+      </p>
+    </div>
+
+    <!-- RECORD DISPLAY (hidden until loaded) -->
+    <div id="record-display" class="hidden">
+      <div id="crate-wrap">
+        <div class="crate-shadow cs2"></div>
+        <div class="crate-shadow cs1"></div>
+        <div id="record-jacket">
+          <img id="album-art" src="" alt="Album cover">
+          <div id="price-tag" class="hidden"></div>
+          <div id="art-skeleton"></div>
+          <div id="no-image-placeholder" class="hidden">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="22" stroke="#d4a843" stroke-width="1.5"/>
+              <circle cx="24" cy="24" r="3" fill="#d4a843"/>
+            </svg>
+            <span>No image</span>
+          </div>
+        </div>
+      </div>
+      <div id="record-caption">
+        <div id="caption-title"></div>
+        <div id="caption-artist"></div>
+      </div>
+    </div>
+
+    <button class="nav-arrow" id="next-btn" disabled aria-label="Next">&#8594;</button>
+
+    <!-- METADATA PANEL -->
+    <aside id="metadata-panel">
+      <div id="meta-inner">
+
+        <div id="meta-skeleton" class="hidden">
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+        </div>
+
+        <div id="meta-content" class="hidden">
+          <div id="meta-price-block">
+            <div id="meta-price">—</div>
+            <div id="meta-offers"></div>
+          </div>
+
+          <div class="meta-row">
+            <span class="meta-label">Media</span>
+            <span class="meta-val" id="meta-condition"></span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Sleeve</span>
+            <span class="meta-val" id="meta-sleeve"></span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Year</span>
+            <span class="meta-val" id="meta-year"></span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Label</span>
+            <span class="meta-val" id="meta-label-val"></span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Format</span>
+            <span class="meta-val" id="meta-format"></span>
+          </div>
+
+          <div id="meta-seller-block">
+            <div id="meta-seller-name"></div>
+            <div id="meta-seller-rating"></div>
+            <div id="meta-ships"></div>
+          </div>
+
+          <p id="meta-comments" class="hidden"></p>
+
+          <button id="add-to-cart-btn">View on Discogs ↗</button>
+
+          <div id="search-links">
+            <a id="search-youtube"    target="_blank" rel="noopener noreferrer">YouTube ↗</a>
+            <a id="search-bandcamp"   target="_blank" rel="noopener noreferrer">Bandcamp ↗</a>
+            <a id="search-soundcloud" target="_blank" rel="noopener noreferrer">SoundCloud ↗</a>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- STORES HISTORY PANEL -->
+  <div id="stores-panel" class="hidden">
+    <div id="stores-grid"></div>
+    <div id="stores-empty" class="hidden">No stores visited yet. Load a seller or artist URL to start your history.</div>
+  </div>
+
+  <!-- TOUCH NAV (mobile) -->
+  <div id="touch-nav-row">
+    <button class="touch-nav-btn" id="touch-prev">&#8592;</button>
+    <button class="touch-nav-btn" id="touch-next">&#8594;</button>
+  </div>
+
+  <!-- SETTINGS PANEL (collapsible, above bottom bar) -->
+  <div id="settings-panel" class="hidden">
+    <div id="settings-inner">
+      <span class="settings-label">Discogs Token</span>
+      <div id="token-row">
+        <input id="discogs-token" type="text"
+          placeholder="Paste your Discogs token…"
+          autocomplete="off" spellcheck="false">
+      </div>
+      <div id="token-hint">
+        Free token required &mdash;
+        <a href="https://www.discogs.com/settings/developers" target="_blank" rel="noopener">discogs.com/settings/developers</a>
+        &rarr; Generate token &rarr; paste above
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <footer id="bottom-bar">
+    <span id="pagination-counter">— / —</span>
+    <span id="loading-indicator" class="hidden">loading…</span>
+    <span id="error-msg" class="hidden"></span>
+    <button id="settings-toggle-btn" title="Token settings">&#9881;</button>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

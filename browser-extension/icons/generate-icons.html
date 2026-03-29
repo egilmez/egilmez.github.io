@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Record Studio Icons</title>
+  <style>
+    body { font-family: monospace; background: #0f0c09; color: #ede4d3; padding: 32px; }
+    h1 { color: #d4a843; margin-bottom: 8px; }
+    p { color: #7a6a54; margin-bottom: 24px; font-size: 0.9rem; }
+    .icons { display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 24px; }
+    .icon-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    canvas { display: block; image-rendering: pixelated; }
+    .label { font-size: 0.75rem; color: #7a6a54; }
+    .dl { color: #d4a843; text-decoration: none; font-size: 0.8rem; border: 1px solid #3d3020;
+          padding: 4px 10px; border-radius: 2px; margin-top: 4px; display: inline-block; }
+    .dl:hover { background: rgba(212,168,67,0.15); }
+    #download-all { background: #d4a843; color: #0d0d0d; border: none; padding: 10px 24px;
+                    font-family: monospace; font-size: 0.9rem; cursor: pointer; border-radius: 2px;
+                    letter-spacing: 0.05em; margin-top: 8px; }
+    #download-all:hover { background: #a07820; }
+  </style>
+</head>
+<body>
+  <h1>Record Studio — Icon Generator</h1>
+  <p>Click each download link (or "Download All") to save the PNG icons into the <code>icons/</code> folder.</p>
+  <div class="icons" id="icons"></div>
+  <button id="download-all">Download All Icons</button>
+
+  <script>
+    const sizes = [16, 32, 48, 128];
+
+    function drawIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const cx = size / 2, cy = size / 2, r = size / 2 - 1;
+
+      // Background circle
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = '#0f0c09';
+      ctx.fill();
+
+      // Outer ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = '#d4a843';
+      ctx.lineWidth = Math.max(1, size * 0.04);
+      ctx.stroke();
+
+      // Groove rings
+      const grooves = size >= 48 ? 4 : (size >= 32 ? 3 : 2);
+      for (let i = 1; i <= grooves; i++) {
+        const gr = r * (0.45 + i * 0.11);
+        ctx.beginPath();
+        ctx.arc(cx, cy, gr, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(212,168,67,0.3)';
+        ctx.lineWidth = Math.max(0.5, size * 0.015);
+        ctx.stroke();
+      }
+
+      // Label circle (center)
+      const labelR = r * 0.28;
+      ctx.beginPath();
+      ctx.arc(cx, cy, labelR, 0, Math.PI * 2);
+      ctx.fillStyle = '#d4a843';
+      ctx.globalAlpha = 0.85;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Center hole
+      if (size >= 16) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, Math.max(1, r * 0.05), 0, Math.PI * 2);
+        ctx.fillStyle = '#0f0c09';
+        ctx.fill();
+      }
+
+      return canvas;
+    }
+
+    const container = document.getElementById('icons');
+    const canvases = {};
+
+    sizes.forEach(size => {
+      const canvas = drawIcon(size);
+      canvases[size] = canvas;
+
+      // Show at 2x for small icons so they're visible
+      const display = document.createElement('canvas');
+      const scale = size < 48 ? Math.ceil(96 / size) : 1;
+      display.width  = size * scale;
+      display.height = size * scale;
+      const dctx = display.getContext('2d');
+      dctx.imageSmoothingEnabled = false;
+      dctx.drawImage(canvas, 0, 0, size * scale, size * scale);
+
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = `icon${size}.png`;
+      a.className = 'dl';
+      a.textContent = `↓ icon${size}.png`;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'icon-wrap';
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = `${size}×${size}`;
+      wrap.appendChild(display);
+      wrap.appendChild(label);
+      wrap.appendChild(a);
+      container.appendChild(wrap);
+    });
+
+    document.getElementById('download-all').addEventListener('click', () => {
+      sizes.forEach((size, i) => {
+        setTimeout(() => {
+          const a = document.createElement('a');
+          a.href = canvases[size].toDataURL('image/png');
+          a.download = `icon${size}.png`;
+          a.click();
+        }, i * 200);
+      });
+    });
+  </script>
+</body>
+</html>
