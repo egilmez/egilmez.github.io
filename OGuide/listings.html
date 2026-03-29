@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse — öGuide</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ── Page-specific: Listings ── */
+    .listings-header {
+      background: var(--dark);
+      padding: 40px 0 36px;
+      border-bottom: 3px solid var(--sand);
+    }
+    .listings-header .breadcrumb { color: rgba(245,242,237,0.4); }
+    .listings-header .breadcrumb a { color: rgba(245,242,237,0.4); }
+    .listings-header .breadcrumb a:hover { color: var(--sand); }
+    .listings-header .breadcrumb span { color: rgba(245,242,237,0.7); }
+    .listings-header h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 600;
+      color: var(--bg);
+      margin-bottom: 6px;
+    }
+    .listings-header__count {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(245,242,237,0.4);
+    }
+
+    /* Layout */
+    .listings-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 40px;
+      padding-top: 40px;
+      padding-bottom: 80px;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .listings-layout { grid-template-columns: 1fr; }
+      .listings-sidebar { display: none; }
+      .listings-sidebar.is-open { display: block; }
+    }
+
+    .listings-sidebar {
+      position: sticky;
+      top: calc(var(--nav-height) + 24px);
+    }
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-header h2 {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .sidebar-clear {
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--moss);
+      cursor: pointer;
+    }
+    .sidebar-clear:hover { color: var(--forest); }
+
+    /* Filter toggle (mobile) */
+    .filter-toggle-btn {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    @media (max-width: 860px) {
+      .filter-toggle-btn { display: flex; }
+    }
+
+    /* Results */
+    #listings-grid.card-grid--list .business-card { margin-bottom: 0; }
+    .results-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ── -->
+  <nav class="oguide-nav" id="main-nav">
+    <a class="oguide-nav__logo" href="index.html">ö<span>Guide</span></a>
+    <ul class="oguide-nav__links">
+      <li><a href="listings.html?category=restaurant">Restaurants</a></li>
+      <li><a href="listings.html?category=bar">Bars</a></li>
+      <li><a href="listings.html?category=cocktail-bar">Cocktail Bars</a></li>
+      <li><a href="listings.html?category=cafe">Cafés</a></li>
+      <li><a href="listings.html">All Places</a></li>
+    </ul>
+    <button class="oguide-nav__hamburger" id="hamburger" aria-label="Open menu">☰</button>
+  </nav>
+  <div class="oguide-nav__mobile-menu" id="mobile-menu">
+    <a href="listings.html?category=restaurant">Restaurants</a>
+    <a href="listings.html?category=bar">Bars</a>
+    <a href="listings.html?category=cocktail-bar">Cocktail Bars</a>
+    <a href="listings.html?category=cafe">Cafés</a>
+    <a href="listings.html">All Places</a>
+  </div>
+
+  <!-- ── Page Header ── -->
+  <header class="listings-header">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="index.html">öGuide</a> /
+        <span id="breadcrumb-ctx">Browse</span>
+      </nav>
+      <h1 id="listings-title">All Places</h1>
+      <p class="listings-header__count" id="listings-count">— places</p>
+    </div>
+  </header>
+
+  <!-- ── Main Content ── -->
+  <main class="container listings-layout">
+
+    <!-- Sidebar Filters -->
+    <aside class="listings-sidebar" id="listings-sidebar">
+      <div class="sidebar-header">
+        <h2>Filter</h2>
+        <span class="sidebar-clear" id="clear-filters">Clear all</span>
+      </div>
+
+      <!-- City -->
+      <div class="filter-group">
+        <div class="filter-group__label">City</div>
+        <div id="filter-city"></div>
+      </div>
+
+      <!-- Category -->
+      <div class="filter-group">
+        <div class="filter-group__label">Category</div>
+        <div id="filter-category"></div>
+      </div>
+
+      <!-- Price -->
+      <div class="filter-group">
+        <div class="filter-group__label">Price Range</div>
+        <div class="price-toggle" id="filter-price">
+          <button class="price-btn" data-price="$">$</button>
+          <button class="price-btn" data-price="$$">$$</button>
+          <button class="price-btn" data-price="$$$">$$$</button>
+          <button class="price-btn" data-price="$$$$">$$$$</button>
+        </div>
+      </div>
+
+      <!-- Min Score -->
+      <div class="filter-group">
+        <div class="filter-group__label">Min Score</div>
+        <div class="score-range-wrap">
+          <input type="range" id="filter-score" min="0" max="30" value="0" step="1">
+          <div class="range-labels">
+            <span>0</span>
+            <span id="score-val">Any</span>
+            <span>30</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Results -->
+    <div class="listings-results">
+      <button class="filter-toggle-btn" id="filter-toggle">
+        ☰ Filters
+      </button>
+
+      <!-- Sort bar -->
+      <div class="sort-bar">
+        <span class="sort-bar__label">Sort</span>
+        <button class="sort-btn is-active" data-sort="score">Score</button>
+        <button class="sort-btn" data-sort="name">Name</button>
+        <button class="sort-btn" data-sort="price-asc">Price ↑</button>
+        <button class="sort-btn" data-sort="price-desc">Price ↓</button>
+        <div class="view-toggle">
+          <button class="view-btn is-active" data-view="grid" title="Grid view">▦</button>
+          <button class="view-btn" data-view="list" title="List view">☰</button>
+        </div>
+      </div>
+
+      <div class="results-meta" style="margin-bottom:20px;">
+        <span id="results-label" style="font-size:0.78rem;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;"></span>
+      </div>
+
+      <div class="card-grid" id="listings-grid"></div>
+    </div>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="oguide-footer">
+    <div class="oguide-footer__logo">ö<span>Guide</span></div>
+    <p class="oguide-footer__note">Prototype — Placeholder data only</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script>
+    // ── State ─────────────────────────────────────────────────────
+    let state = {
+      q:         getParam('q'),
+      city:      getParam('city'),
+      category:  getParam('category'),
+      prices:    new Set(),
+      minScore:  0,
+      sort:      'score',
+      view:      'grid'
+    };
+
+    // ── Nav / hamburger ───────────────────────────────────────────
+    window.addEventListener('scroll', () => {
+      document.getElementById('main-nav')
+        .classList.toggle('is-scrolled', window.scrollY > 10);
+    });
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('is-open');
+      hamburger.textContent = open ? '✕' : '☰';
+    });
+
+    // Highlight active nav link
+    document.querySelectorAll('.oguide-nav__links a').forEach(a => {
+      if (a.href === location.href) a.classList.add('is-active');
+    });
+
+    // ── Filter toggle (mobile) ─────────────────────────────────────
+    document.getElementById('filter-toggle').addEventListener('click', () => {
+      document.getElementById('listings-sidebar').classList.toggle('is-open');
+    });
+
+    // ── Build filter UI ───────────────────────────────────────────
+
+    // City radios
+    const cityWrap = document.getElementById('filter-city');
+    [{ id: '', name: 'All Cities' }, ...OGuideData.cities].forEach(city => {
+      cityWrap.insertAdjacentHTML('beforeend', `
+        <label class="filter-option">
+          <input type="radio" name="city" value="${city.id}" ${state.city === city.id ? 'checked' : ''}>
+          <span>${city.name || city}</span>
+        </label>
+      `);
+    });
+    cityWrap.addEventListener('change', e => {
+      state.city = e.target.value;
+      pushState(); render();
+    });
+
+    // Category checkboxes
+    const catWrap = document.getElementById('filter-category');
+    [{ id: '', label: 'All Categories' }, ...OGuideData.categories].forEach(cat => {
+      catWrap.insertAdjacentHTML('beforeend', `
+        <label class="filter-option">
+          <input type="radio" name="category" value="${cat.id}" ${state.category === cat.id ? 'checked' : ''}>
+          <span>${cat.label}</span>
+        </label>
+      `);
+    });
+    catWrap.addEventListener('change', e => {
+      state.category = e.target.value;
+      pushState(); render();
+    });
+
+    // Price toggle
+    document.getElementById('filter-price').addEventListener('click', e => {
+      const btn = e.target.closest('.price-btn');
+      if (!btn) return;
+      const p = btn.dataset.price;
+      if (state.prices.has(p)) { state.prices.delete(p); btn.classList.remove('is-active'); }
+      else { state.prices.add(p); btn.classList.add('is-active'); }
+      render();
+    });
+
+    // Score range
+    const scoreInput = document.getElementById('filter-score');
+    const scoreVal   = document.getElementById('score-val');
+    scoreInput.addEventListener('input', () => {
+      state.minScore = +scoreInput.value;
+      scoreVal.textContent = state.minScore > 0 ? `${state.minScore}+` : 'Any';
+      render();
+    });
+
+    // ── Sort buttons ───────────────────────────────────────────────
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        state.sort = btn.dataset.sort;
+        render();
+      });
+    });
+
+    // ── View toggle ────────────────────────────────────────────────
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        state.view = btn.dataset.view;
+        render();
+      });
+    });
+
+    // ── Clear filters ──────────────────────────────────────────────
+    document.getElementById('clear-filters').addEventListener('click', () => {
+      state.q = ''; state.city = ''; state.category = '';
+      state.prices.clear(); state.minScore = 0;
+      // reset UI
+      document.querySelectorAll('input[name=city]')[0].checked = true;
+      document.querySelectorAll('input[name=category]')[0].checked = true;
+      document.querySelectorAll('.price-btn').forEach(b => b.classList.remove('is-active'));
+      scoreInput.value = 0; scoreVal.textContent = 'Any';
+      pushState(); render();
+    });
+
+    // ── Filter & sort logic ────────────────────────────────────────
+    function getFiltered() {
+      return OGuideData.businesses.filter(b => {
+        if (state.city     && b.city     !== state.city)     return false;
+        if (state.category && b.category !== state.category) return false;
+        if (state.prices.size && !state.prices.has(b.priceRange)) return false;
+        if (b.score.overall < state.minScore) return false;
+        if (state.q) {
+          const q = state.q.toLowerCase();
+          if (!b.name.toLowerCase().includes(q) &&
+              !b.city.toLowerCase().includes(q) &&
+              !b.cuisine.toLowerCase().includes(q) &&
+              !b.neighborhood.toLowerCase().includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    const priceOrder = { '$': 1, '$$': 2, '$$$': 3, '$$$$': 4 };
+    function getSorted(list) {
+      return [...list].sort((a, b) => {
+        if (state.sort === 'score')      return b.score.overall - a.score.overall;
+        if (state.sort === 'name')       return a.name.localeCompare(b.name);
+        if (state.sort === 'price-asc')  return priceOrder[a.priceRange] - priceOrder[b.priceRange];
+        if (state.sort === 'price-desc') return priceOrder[b.priceRange] - priceOrder[a.priceRange];
+        return 0;
+      });
+    }
+
+    // ── Render ─────────────────────────────────────────────────────
+    function render() {
+      const filtered = getSorted(getFiltered());
+      const grid = document.getElementById('listings-grid');
+
+      // Update header
+      updateHeader(filtered.length);
+
+      // Update grid classes
+      grid.className = state.view === 'list'
+        ? 'card-grid card-grid--list'
+        : 'card-grid';
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1">
+            <strong>No places found</strong>
+            Try adjusting your filters or clearing them entirely.
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered
+        .map(b => renderBusinessCard(b, state.view))
+        .join('');
+
+      document.getElementById('results-label').textContent =
+        `${filtered.length} place${filtered.length !== 1 ? 's' : ''}`;
+    }
+
+    function updateHeader(count) {
+      let title = 'All Places';
+      let crumb = 'Browse';
+
+      const city = OGuideData.cities.find(c => c.id === state.city);
+      const cat  = OGuideData.categories.find(c => c.id === state.category);
+
+      if (cat && city) {
+        title = `${cat.label} in ${city.name}`;
+        crumb = `${city.name} · ${cat.label}`;
+      } else if (cat) {
+        title = cat.label;
+        crumb = cat.label;
+      } else if (city) {
+        title = `Places in ${city.name}`;
+        crumb = city.name;
+      } else if (state.q) {
+        title = `Search: "${state.q}"`;
+        crumb = 'Search';
+      }
+
+      document.getElementById('listings-title').textContent = title;
+      document.getElementById('breadcrumb-ctx').textContent = crumb;
+      document.getElementById('listings-count').textContent = `${count} place${count !== 1 ? 's' : ''}`;
+      document.title = `${title} — öGuide`;
+    }
+
+    // ── URL state ──────────────────────────────────────────────────
+    function pushState() {
+      const p = new URLSearchParams();
+      if (state.q)        p.set('q', state.q);
+      if (state.city)     p.set('city', state.city);
+      if (state.category) p.set('category', state.category);
+      history.replaceState(null, '', `?${p.toString()}`);
+    }
+
+    // ── Init ───────────────────────────────────────────────────────
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business — öGuide</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* ── Page-specific: Business Detail ── */
+
+    /* Hero */
+    .business-hero {
+      position: relative;
+      height: 420px;
+      overflow: hidden;
+      background: var(--dark);
+    }
+    .business-hero__img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.55;
+      transition: opacity 0.4s;
+    }
+    .business-hero__overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 40px 48px;
+      background: linear-gradient(to top, rgba(26,28,26,0.88) 0%, transparent 60%);
+    }
+    .business-hero__overlay .tag { margin-bottom: 12px; width: fit-content; }
+    .business-hero__name {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      color: var(--bg);
+      line-height: 1.05;
+      margin-bottom: 10px;
+    }
+    .business-hero__meta {
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(245,242,237,0.6);
+    }
+    @media (max-width: 640px) {
+      .business-hero { height: 300px; }
+      .business-hero__overlay { padding: 24px; }
+    }
+
+    /* Score strip */
+    .score-strip {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: var(--nav-height);
+      z-index: 50;
+      transition: box-shadow 0.2s;
+    }
+    .score-strip.is-elevated { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .score-strip__inner {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      padding: 16px 0;
+      flex-wrap: wrap;
+    }
+    .score-strip__overall {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-right: 32px;
+      border-right: 1px solid var(--border);
+    }
+    .score-strip__overall-label {
+      display: flex;
+      flex-direction: column;
+    }
+    .score-strip__overall-label strong {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .score-strip__overall-label span {
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .score-strip__criteria {
+      display: flex;
+      gap: 24px;
+      flex: 1;
+    }
+    .criterion-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .criterion-item__label {
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .score-strip__price {
+      margin-left: auto;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--moss);
+      letter-spacing: 0.04em;
+    }
+    @media (max-width: 640px) {
+      .score-strip__overall { border-right: none; padding-right: 0; }
+      .score-strip__price { display: none; }
+    }
+
+    /* Breadcrumb in hero area */
+    .detail-breadcrumb {
+      padding: 20px 0 0;
+    }
+
+    /* Two-column layout */
+    .business-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 48px;
+      padding-top: 40px;
+      padding-bottom: 80px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .business-layout {
+        grid-template-columns: 1fr;
+      }
+      .business-sidebar { order: -1; }
+    }
+
+    /* Sections */
+    .business-section { margin-bottom: 48px; }
+    .business-section h2 {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .business-description {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--text);
+      font-family: var(--font-serif);
+      font-style: italic;
+    }
+
+    /* Sidebar */
+    .business-sidebar { display: flex; flex-direction: column; gap: 20px; }
+    .score-breakdown-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .score-breakdown-card h3 {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    /* Not found */
+    .not-found {
+      padding: 80px 24px;
+      text-align: center;
+    }
+    .not-found h1 {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      margin-bottom: 16px;
+    }
+    .not-found p { color: var(--text-muted); margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ── -->
+  <nav class="oguide-nav" id="main-nav">
+    <a class="oguide-nav__logo" href="index.html">ö<span>Guide</span></a>
+    <ul class="oguide-nav__links">
+      <li><a href="listings.html?category=restaurant">Restaurants</a></li>
+      <li><a href="listings.html?category=bar">Bars</a></li>
+      <li><a href="listings.html?category=cocktail-bar">Cocktail Bars</a></li>
+      <li><a href="listings.html?category=cafe">Cafés</a></li>
+      <li><a href="listings.html">All Places</a></li>
+    </ul>
+    <button class="oguide-nav__hamburger" id="hamburger" aria-label="Open menu">☰</button>
+  </nav>
+  <div class="oguide-nav__mobile-menu" id="mobile-menu">
+    <a href="listings.html?category=restaurant">Restaurants</a>
+    <a href="listings.html?category=bar">Bars</a>
+    <a href="listings.html?category=cocktail-bar">Cocktail Bars</a>
+    <a href="listings.html?category=cafe">Cafés</a>
+    <a href="listings.html">All Places</a>
+  </div>
+
+  <!-- ── Content (populated by JS) ── -->
+  <div id="page-content"></div>
+
+  <!-- ── Footer ── -->
+  <footer class="oguide-footer">
+    <div class="oguide-footer__logo">ö<span>Guide</span></div>
+    <p class="oguide-footer__note">Prototype — Placeholder data only</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script>
+    // ── Nav ───────────────────────────────────────────────────────
+    window.addEventListener('scroll', () => {
+      document.getElementById('main-nav')
+        .classList.toggle('is-scrolled', window.scrollY > 10);
+    });
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('is-open');
+      hamburger.textContent = open ? '✕' : '☰';
+    });
+
+    // ── Load business ─────────────────────────────────────────────
+    const id = parseInt(getParam('id'), 10);
+    const business = OGuideData.businesses.find(b => b.id === id);
+    const content  = document.getElementById('page-content');
+
+    if (!business) {
+      content.innerHTML = `
+        <div class="container not-found">
+          <h1>Place not found</h1>
+          <p>We couldn't find a business with that ID.</p>
+          <a href="listings.html" class="btn">Browse all places</a>
+        </div>`;
+    } else {
+      const city = OGuideData.cities.find(c => c.id === business.city);
+      const cat  = OGuideData.categories.find(c => c.id === business.category);
+      const cl   = OGuideData.criteriaLabels;
+
+      document.title = `${business.name} — öGuide`;
+
+      // Build score strip HTML
+      const stripHTML = `
+        <div class="score-strip" id="score-strip">
+          <div class="container score-strip__inner">
+            <div class="score-strip__overall">
+              ${scoreBadge(business.score.overall, 'lg')}
+              <div class="score-strip__overall-label">
+                <strong>${business.score.overall} / 30</strong>
+                <span>Overall Score</span>
+              </div>
+            </div>
+            <div class="score-strip__criteria">
+              <div class="criterion-item">
+                ${scoreBadge(business.score.c1)}
+                <span class="criterion-item__label">${cl.c1}</span>
+              </div>
+              <div class="criterion-item">
+                ${scoreBadge(business.score.c2)}
+                <span class="criterion-item__label">${cl.c2}</span>
+              </div>
+              <div class="criterion-item">
+                ${scoreBadge(business.score.c3)}
+                <span class="criterion-item__label">${cl.c3}</span>
+              </div>
+            </div>
+            <div class="score-strip__price">${business.priceRange}</div>
+          </div>
+        </div>
+      `;
+
+      // Build reviews HTML
+      function buildReviews(reviews) {
+        if (!reviews || reviews.length === 0) return '<p style="color:var(--text-muted);font-size:.85rem;">No reviews yet.</p>';
+        return reviews.map(r => `
+          <div class="review-card" data-c1="${r.score.c1}" data-c2="${r.score.c2}" data-c3="${r.score.c3}">
+            <div class="review-card__header">
+              <div>
+                <div class="review-card__author">${r.author}</div>
+                <div class="review-card__date">${r.date}</div>
+              </div>
+            </div>
+            <div class="review-card__scores">
+              <div class="review-card__score-item">
+                ${scoreBadge(r.score.c1, 'sm')}
+                <span class="review-card__score-name">${cl.c1}</span>
+              </div>
+              <div class="review-card__score-item">
+                ${scoreBadge(r.score.c2, 'sm')}
+                <span class="review-card__score-name">${cl.c2}</span>
+              </div>
+              <div class="review-card__score-item">
+                ${scoreBadge(r.score.c3, 'sm')}
+                <span class="review-card__score-name">${cl.c3}</span>
+              </div>
+            </div>
+            <p class="review-card__text">"${r.text}"</p>
+          </div>
+        `).join('');
+      }
+
+      // Build score bars
+      function scoreBar(label, score) {
+        const pct = Math.round((score / 30) * 100);
+        return `
+          <div class="score-bar-row">
+            <span class="score-bar-row__label">${label}</span>
+            <div class="score-bar-row__track">
+              <div class="score-bar-row__fill" style="--pct:${pct}%"></div>
+            </div>
+            <span class="score-bar-row__num">${score}</span>
+          </div>
+        `;
+      }
+
+      content.innerHTML = `
+        <!-- Hero -->
+        <header class="business-hero">
+          <img class="business-hero__img" src="${business.heroImage}" alt="${business.name}">
+          <div class="business-hero__overlay">
+            <span class="tag">${cat ? cat.label : business.category}</span>
+            <h1 class="business-hero__name">${business.name}</h1>
+            <p class="business-hero__meta">${city ? city.name : business.city} · ${business.neighborhood} · ${business.cuisine}</p>
+          </div>
+        </header>
+
+        ${stripHTML}
+
+        <div class="container">
+          <nav class="breadcrumb detail-breadcrumb">
+            <a href="index.html">öGuide</a> /
+            <a href="listings.html?city=${business.city}">${city ? city.name : business.city}</a> /
+            <a href="listings.html?category=${business.category}">${cat ? cat.label : business.category}</a> /
+            <span>${business.name}</span>
+          </nav>
+        </div>
+
+        <!-- Two-column body -->
+        <main class="container business-layout">
+
+          <!-- Main column -->
+          <div class="business-main">
+
+            <!-- About -->
+            <section class="business-section">
+              <h2>About</h2>
+              <p class="business-description">${business.description}</p>
+            </section>
+
+            <!-- Reviews -->
+            <section class="business-section">
+              <h2>Reviews</h2>
+              <div class="tab-bar">
+                <button class="tab-btn is-active" data-tab="all">All</button>
+                <button class="tab-btn" data-tab="c1">${cl.c1}</button>
+                <button class="tab-btn" data-tab="c2">${cl.c2}</button>
+                <button class="tab-btn" data-tab="c3">${cl.c3}</button>
+              </div>
+              <div id="reviews-container">
+                ${buildReviews(business.reviews)}
+              </div>
+            </section>
+
+          </div>
+
+          <!-- Sidebar -->
+          <aside class="business-sidebar">
+
+            <!-- Info card -->
+            <div class="info-card">
+              <h3>Details</h3>
+              <dl>
+                <dt>Address</dt>
+                <dd>${business.address}</dd>
+                <dt>Phone</dt>
+                <dd>${business.phone}</dd>
+                <dt>Hours</dt>
+                <dd>${business.hours}</dd>
+                <dt>Cuisine</dt>
+                <dd>${business.cuisine}</dd>
+                <dt>Price</dt>
+                <dd>${business.priceRange}</dd>
+              </dl>
+              ${business.website && business.website !== '#' ? `<a class="btn" href="${business.website}" target="_blank" rel="noopener" style="margin-top:20px;width:100%;justify-content:center;">Visit Website ↗</a>` : ''}
+            </div>
+
+            <!-- Score breakdown -->
+            <div class="score-breakdown-card">
+              <h3>Score Breakdown</h3>
+              ${scoreBar(cl.c1, business.score.c1)}
+              ${scoreBar(cl.c2, business.score.c2)}
+              ${scoreBar(cl.c3, business.score.c3)}
+              <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);">Overall</span>
+                ${scoreBadge(business.score.overall, 'lg')}
+              </div>
+            </div>
+
+            <!-- Back link -->
+            <a href="listings.html?city=${business.city}" class="btn btn-outline" style="text-align:center;justify-content:center;">
+              ← More in ${city ? city.name : business.city}
+            </a>
+
+          </aside>
+        </main>
+      `;
+
+      // ── Sticky score strip via IntersectionObserver ────────────────
+      const hero = content.querySelector('.business-hero');
+      const strip = document.getElementById('score-strip');
+      if (hero && strip) {
+        new IntersectionObserver(([entry]) => {
+          strip.classList.toggle('is-elevated', !entry.isIntersecting);
+        }, { threshold: 0 }).observe(hero);
+      }
+
+      // ── Review tab filtering ───────────────────────────────────────
+      document.addEventListener('click', e => {
+        const btn = e.target.closest('.tab-btn');
+        if (!btn) return;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.review-card').forEach(card => {
+          if (tab === 'all') {
+            card.style.display = '';
+            return;
+          }
+          // show reviews where the criterion score is above 0 (all have scores, so show all;
+          // future: could sort/highlight by tab criteria)
+          card.style.display = '';
+        });
+      });
+    }
+  </script>
+</body>
+</html>
