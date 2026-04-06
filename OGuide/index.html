@@ -3,351 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>öGuide — The Discerning City Guide</title>
+  <title>ø̈Guide — The Irreplaceable Places</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* ── Page-specific: Homepage ── */
-    body { background: var(--bg); }
-
-    /* Hero */
-    .home-hero {
-      background: var(--dark);
-      position: relative;
-      padding: 96px 32px 88px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .home-header {
+      padding: 56px 0 40px;
       text-align: center;
-    }
-    .home-hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1400&q=80') center/cover;
-      opacity: 0.14;
-    }
-    .home-hero__content { position: relative; max-width: 600px; }
-    .home-hero .section-label { color: var(--sand); margin-bottom: 16px; }
-    .home-hero__title {
-      font-family: var(--font-serif);
-      font-size: clamp(3.5rem, 8vw, 6rem);
-      font-weight: 700;
-      color: var(--bg);
-      line-height: 1;
-      letter-spacing: -0.02em;
-      margin-bottom: 20px;
-    }
-    .home-hero__title span { color: var(--sand); }
-    .home-hero__sub {
-      font-size: 1rem;
-      font-weight: 300;
-      color: rgba(245,242,237,0.7);
-      margin-bottom: 36px;
-      letter-spacing: 0.02em;
-    }
-    .home-hero__search {
-      display: flex;
-      max-width: 480px;
-      margin: 0 auto;
-      gap: 0;
-    }
-    .home-hero__search input {
-      flex: 1;
-      padding: 13px 18px;
-      background: rgba(245,242,237,0.1);
-      border: 1.5px solid rgba(245,242,237,0.25);
-      border-right: none;
-      border-radius: var(--radius) 0 0 var(--radius);
-      color: var(--bg);
-      font-size: 0.88rem;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    .home-hero__search input::placeholder { color: rgba(245,242,237,0.4); }
-    .home-hero__search input:focus { border-color: var(--sand); }
-    .home-hero__search button {
-      border-radius: 0 var(--radius) var(--radius) 0;
-      padding: 13px 22px;
-    }
-
-    /* Category strip */
-    .category-section {
-      padding: 64px 0 56px;
-      background: var(--surface);
       border-bottom: 1px solid var(--border);
     }
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 12px;
-    }
-    .category-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      padding: 22px 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      transition: border-color 0.15s, background 0.15s;
-      text-align: center;
-    }
-    .category-card:hover {
-      border-color: var(--forest);
-      background: var(--sand-light);
-    }
-    .category-card__icon {
-      font-size: 1.4rem;
-      color: var(--forest);
+    .home-title {
+      font-size: clamp(2.4rem, 6vw, 3.6rem);
+      font-weight: 700;
+      color: var(--text);
       line-height: 1;
+      margin-bottom: 12px;
     }
-    .category-card__label {
-      font-size: 0.72rem;
-      font-weight: 500;
+    .home-title span { color: var(--accent); }
+    .home-sub {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .home-section {
+      padding: 36px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .category-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .category-list a {
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .category-list a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .city-list a {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+      transition: color 0.15s;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    .city-list a:last-child { border-bottom: none; }
+    .city-list a:hover { color: var(--accent); }
+    .city-tagline {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: var(--text-muted);
+    }
+
+    .editorial {
+      padding: 36px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .editorial blockquote {
+      font-size: 0.9rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text-muted);
+      line-height: 1.8;
+      max-width: 540px;
+    }
+    .editorial cite {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 300;
+      font-style: normal;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-muted);
-    }
-    .category-card:hover .category-card__label { color: var(--forest); }
-
-    @media (max-width: 800px) {
-      .category-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-    @media (max-width: 480px) {
-      .category-grid { grid-template-columns: repeat(2, 1fr); }
+      margin-top: 10px;
+      opacity: 0.6;
     }
 
-    /* Cities grid */
-    .cities-section { padding: 72px 0; }
-    .cities-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-    .city-card {
-      position: relative;
-      aspect-ratio: 3/4;
-      overflow: hidden;
-      border-radius: var(--radius);
-      display: block;
-    }
-    .city-card img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s var(--ease);
-    }
-    .city-card:hover img { transform: scale(1.05); }
-    .city-card__overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(26,28,26,0.82) 0%, rgba(26,28,26,0.1) 55%);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: 20px;
-    }
-    .city-card__name {
-      font-family: var(--font-serif);
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: var(--bg);
-      margin-bottom: 4px;
-    }
-    .city-card__tagline {
-      font-size: 0.72rem;
-      color: rgba(245,242,237,0.65);
-      line-height: 1.4;
-    }
-
-    @media (max-width: 900px) { .cities-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 520px) { .cities-grid { grid-template-columns: 1fr; } .city-card { aspect-ratio: 16/9; } }
-
-    /* Editorial strip */
-    .editorial-strip {
-      background: var(--forest);
-      color: var(--bg);
-      padding: 40px 32px;
-      text-align: center;
-    }
-    .editorial-strip p {
-      font-family: var(--font-serif);
-      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-      font-style: italic;
-      font-weight: 400;
-      max-width: 680px;
-      margin: 0 auto;
-      line-height: 1.6;
-      opacity: 0.9;
-    }
-    .editorial-strip cite {
-      display: block;
-      font-family: var(--font-sans);
-      font-style: normal;
-      font-size: 0.72rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      opacity: 0.5;
-      margin-top: 12px;
-    }
-
-    /* Picks section */
-    .picks-section { padding: 72px 0 80px; }
     .picks-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 32px;
+      align-items: baseline;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 8px;
+      margin-bottom: 8px;
     }
-    .picks-header .section-heading { margin-bottom: 0; }
+    .picks-header .section-label { margin-bottom: 0; }
   </style>
 </head>
 <body>
 
-  <!-- ── Navigation ── -->
   <nav class="oguide-nav" id="main-nav">
-    <a class="oguide-nav__logo" href="index.html">ö<span>Guide</span></a>
+    <a class="oguide-nav__logo" href="index.html">ø̈<span>Guide</span></a>
     <ul class="oguide-nav__links" id="nav-links">
       <li><a href="listings.html?category=restaurant">Restaurants</a></li>
       <li><a href="listings.html?category=bar">Bars</a></li>
-      <li><a href="listings.html?category=cocktail-bar">Cocktail Bars</a></li>
-      <li><a href="listings.html?category=cafe">Cafés</a></li>
-      <li><a href="listings.html">All Places</a></li>
+      <li><a href="listings.html?category=bookshop">Bookshops</a></li>
+      <li><a href="listings.html">All</a></li>
     </ul>
-    <button class="oguide-nav__hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">☰</button>
+    <button class="oguide-nav__hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">&#9776;</button>
   </nav>
   <div class="oguide-nav__mobile-menu" id="mobile-menu">
     <a href="listings.html?category=restaurant">Restaurants</a>
     <a href="listings.html?category=bar">Bars</a>
-    <a href="listings.html?category=cocktail-bar">Cocktail Bars</a>
-    <a href="listings.html?category=cafe">Cafés</a>
+    <a href="listings.html?category=bookshop">Bookshops</a>
+    <a href="listings.html?category=cafe">Cafes</a>
     <a href="listings.html">All Places</a>
   </div>
 
-  <!-- ── Hero ── -->
-  <header class="home-hero">
-    <div class="home-hero__content">
-      <span class="section-label">The Discerning City Guide</span>
-      <h1 class="home-hero__title">ö<span>Guide</span></h1>
-      <p class="home-hero__sub">Curated reviews. Trusted scores. Cities worth exploring.</p>
-      <div class="home-hero__search">
-        <input type="text" id="hero-search" placeholder="City, neighbourhood, or cuisine…" autocomplete="off">
-        <button class="btn" id="hero-search-btn">Search</button>
-      </div>
+  <header class="home-header">
+    <div class="container">
+      <h1 class="home-title">ø̈<span>Guide</span></h1>
+      <p class="home-sub">Every neighbourhood has something that makes it a bit special. This is an attempt to list them.</p>
     </div>
   </header>
 
-  <!-- ── Categories ── -->
-  <section class="category-section">
-    <div class="container">
-      <span class="section-label">Browse by Category</span>
-      <div class="category-grid" id="category-grid">
-        <!-- injected by JS -->
-      </div>
-    </div>
-  </section>
+  <div class="container">
 
-  <!-- ── Cities ── -->
-  <section class="cities-section">
-    <div class="container">
-      <span class="section-label">Cities We Cover</span>
-      <h2 class="section-heading">Where would you like to go?</h2>
-      <div class="cities-grid" id="cities-grid">
-        <!-- injected by JS -->
-      </div>
-    </div>
-  </section>
+    <section class="home-section">
+      <span class="section-label">Categories</span>
+      <div class="category-list" id="category-grid"></div>
+    </section>
 
-  <!-- ── Editorial Quote ── -->
-  <div class="editorial-strip">
-    <p>"A great meal is never just about the food. It is about the room, the hands that serve it, and the hours you spend lingering afterward."</p>
-    <cite>— The öGuide Philosophy</cite>
+    <section class="home-section">
+      <span class="section-label">Cities</span>
+      <div class="city-list" id="cities-grid"></div>
+    </section>
+
+    <section class="editorial">
+      <blockquote>"A neighbourhood is not its buildings. It is the places where people go without thinking — the shop they walk past and nod at, the bar where the bartender already knows. This is an attempt to keep them all in one place."</blockquote>
+      <cite>-- ø̈Guide</cite>
+    </section>
+
+    <section class="home-section" style="border-bottom:none;">
+      <div class="picks-header">
+        <span class="section-label">Essential Places</span>
+        <a href="listings.html" class="btn-outline btn" style="font-size:0.5rem;padding:4px 10px;">All Places</a>
+      </div>
+      <div class="card-grid" id="editors-picks"></div>
+    </section>
+
   </div>
 
-  <!-- ── Editor's Picks ── -->
-  <section class="picks-section">
-    <div class="container">
-      <div class="picks-header">
-        <div>
-          <span class="section-label">Editors' Selection</span>
-          <h2 class="section-heading">Places Worth Travelling For</h2>
-        </div>
-        <a href="listings.html" class="btn btn-outline">View All Places</a>
-      </div>
-      <div class="card-grid card-grid--4" id="editors-picks">
-        <!-- injected by JS -->
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Footer ── -->
   <footer class="oguide-footer">
-    <div class="oguide-footer__logo">ö<span>Guide</span></div>
-    <p class="oguide-footer__note">Prototype — Placeholder data only</p>
+    <div class="oguide-footer__logo">ø̈<span>Guide</span></div>
+    <p class="oguide-footer__note">Prototype -- Placeholder data only</p>
   </footer>
 
   <script src="data.js"></script>
   <script>
-    // ── Nav scroll shadow ──────────────────────────────────
+    // Nav scroll
     window.addEventListener('scroll', () => {
       document.getElementById('main-nav')
         .classList.toggle('is-scrolled', window.scrollY > 10);
     });
 
-    // ── Hamburger ──────────────────────────────────────────
+    // Hamburger
     const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobile-menu');
     hamburger.addEventListener('click', () => {
       const open = mobileMenu.classList.toggle('is-open');
       hamburger.setAttribute('aria-expanded', open);
-      hamburger.textContent = open ? '✕' : '☰';
+      hamburger.textContent = open ? '\u2715' : '\u2630';
     });
 
-    // ── Hero search ────────────────────────────────────────
-    document.getElementById('hero-search-btn').addEventListener('click', doSearch);
-    document.getElementById('hero-search').addEventListener('keydown', e => {
-      if (e.key === 'Enter') doSearch();
-    });
-    function doSearch() {
-      const q = document.getElementById('hero-search').value.trim();
-      if (q) window.location.href = `listings.html?q=${encodeURIComponent(q)}`;
-      else window.location.href = 'listings.html';
-    }
-
-    // ── Render categories ──────────────────────────────────
+    // Categories
     const catGrid = document.getElementById('category-grid');
     OGuideData.categories.forEach(cat => {
-      catGrid.insertAdjacentHTML('beforeend', `
-        <a class="category-card" href="listings.html?category=${cat.id}">
-          <span class="category-card__icon">${cat.icon}</span>
-          <span class="category-card__label">${cat.label}</span>
-        </a>
-      `);
+      catGrid.insertAdjacentHTML('beforeend',
+        `<a href="listings.html?category=${cat.id}">${cat.label}</a>`
+      );
     });
 
-    // ── Render cities ──────────────────────────────────────
+    // Cities
     const citiesGrid = document.getElementById('cities-grid');
     OGuideData.cities.forEach(city => {
       citiesGrid.insertAdjacentHTML('beforeend', `
-        <a class="city-card" href="listings.html?city=${city.id}">
-          <img src="${city.heroImage}" alt="${city.name}" loading="lazy">
-          <div class="city-card__overlay">
-            <div class="city-card__name">${city.name}</div>
-            <div class="city-card__tagline">${city.tagline}</div>
-          </div>
+        <a href="listings.html?city=${city.id}">
+          ${city.name}
+          <span class="city-tagline">${city.tagline}</span>
         </a>
       `);
     });
 
-    // ── Render editors' picks ──────────────────────────────
+    // Essential places
     const picks = OGuideData.businesses.filter(b => b.featured);
-    const picksGrid = document.getElementById('editors-picks');
-    picks.forEach(b => {
-      picksGrid.insertAdjacentHTML('beforeend', renderBusinessCard(b, 'grid'));
-    });
+    document.getElementById('editors-picks').innerHTML =
+      picks.map(b => renderBusinessCard(b)).join('');
   </script>
 </body>
 </html>

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — ø̈Guide</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { background: var(--bg); }
+
+    .admin-header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .admin-header h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .admin-header h1 span { color: var(--accent); }
+    .admin-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .admin-section {
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .admin-section h2 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    /* Places table */
+    .places-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    .places-table th {
+      text-align: left;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 8px 8px 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .places-table td {
+      padding: 10px 8px 10px 0;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: top;
+      font-weight: 400;
+    }
+    .places-table tr:hover td { background: rgba(0,0,0,0.02); }
+    .places-table .col-name { font-weight: 700; }
+    .places-table .col-actions { white-space: nowrap; }
+    .row-btn {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px 6px;
+      transition: color 0.15s;
+    }
+    .row-btn:hover { color: var(--text); }
+    .row-btn--del:hover { color: #b44; }
+
+    /* Edit form */
+    .edit-panel {
+      display: none;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .edit-panel.is-open { display: block; }
+    .edit-panel h3 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-group--full { grid-column: 1 / -1; }
+    .form-group label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 400;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+    .form-group .check-row {
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      padding-top: 4px;
+    }
+    .form-group .check-row input { width: auto; accent-color: var(--accent); }
+    .form-group .check-row label {
+      font-size: 0.78rem;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text);
+    }
+    .form-actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* City taglines */
+    .city-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .city-row span {
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .city-row input {
+      font-family: var(--font);
+      font-size: 0.78rem;
+      font-weight: 400;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+    .city-row input:focus { border-color: var(--accent); }
+
+    /* Import */
+    .import-area {
+      margin-top: 12px;
+    }
+    .import-area input[type=file] {
+      font-family: var(--font);
+      font-size: 0.72rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .places-table { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="oguide-nav">
+    <a class="oguide-nav__logo" href="index.html">ø̈<span>Guide</span></a>
+    <ul class="oguide-nav__links">
+      <li><a href="index.html">Site</a></li>
+      <li><a href="admin.html" class="is-active">Admin</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+
+    <div class="admin-header">
+      <h1>ø̈<span>Guide</span> Admin</h1>
+      <div class="admin-actions">
+        <button class="btn" onclick="downloadCSV()">Download CSV</button>
+        <button class="btn" onclick="downloadDataJS()">Download data.js</button>
+      </div>
+    </div>
+
+    <!-- Import CSV -->
+    <div class="admin-section">
+      <h2>Import</h2>
+      <p style="font-size:0.78rem;font-weight:400;color:var(--text-muted);margin-bottom:10px;">Upload a CSV to replace current data, or edit the loaded data below.</p>
+      <div class="import-area">
+        <input type="file" id="csv-upload" accept=".csv">
+      </div>
+    </div>
+
+    <!-- City Taglines -->
+    <div class="admin-section">
+      <h2>City Taglines</h2>
+      <div id="city-editor"></div>
+    </div>
+
+    <!-- Edit Panel -->
+    <div class="edit-panel" id="edit-panel">
+      <h3 id="edit-title">Add Place</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="f-name">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="f-category"></select>
+        </div>
+        <div class="form-group">
+          <label>City</label>
+          <select id="f-city"></select>
+        </div>
+        <div class="form-group">
+          <label>Neighbourhood</label>
+          <input type="text" id="f-neighborhood">
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="f-address">
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="f-phone">
+        </div>
+        <div class="form-group">
+          <label>Website</label>
+          <input type="text" id="f-website">
+        </div>
+        <div class="form-group">
+          <label>Hours</label>
+          <input type="text" id="f-hours">
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <input type="text" id="f-type">
+        </div>
+        <div class="form-group">
+          <label>Price Range</label>
+          <select id="f-price">
+            <option value="$">$</option>
+            <option value="$$">$$</option>
+            <option value="$$$">$$$</option>
+            <option value="$$$$">$$$$</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Since (year)</label>
+          <input type="number" id="f-since" min="1800" max="2030">
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <div class="check-row" style="display:flex;align-items:center;gap:8px;padding-top:4px;">
+            <input type="checkbox" id="f-featured">
+            <label for="f-featured">Featured / Essential</label>
+          </div>
+        </div>
+        <div class="form-group form-group--full">
+          <label>Description (short, for cards)</label>
+          <textarea id="f-description" rows="2"></textarea>
+        </div>
+        <div class="form-group form-group--full">
+          <label>Write-up (full editorial)</label>
+          <textarea id="f-writeup" rows="5"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn" id="save-btn" onclick="savePlace()">Save</button>
+        <button class="btn btn-outline" onclick="closeForm()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Places Table -->
+    <div class="admin-section" style="border-bottom:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h2 style="margin-bottom:0;">Places (<span id="place-count">0</span>)</h2>
+        <button class="btn" onclick="openAdd()">+ Add Place</button>
+      </div>
+      <table class="places-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>City</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Since</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="places-tbody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <footer class="oguide-footer">
+    <div class="oguide-footer__logo">ø̈<span>Guide</span></div>
+    <p class="oguide-footer__note">Admin Panel</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script>
+    // --- State ---
+    let places = JSON.parse(JSON.stringify(OGuideData.businesses));
+    let cities = JSON.parse(JSON.stringify(OGuideData.cities));
+    let categories = JSON.parse(JSON.stringify(OGuideData.categories));
+    let editingId = null; // null = adding new
+
+    // --- Render table ---
+    function renderTable() {
+      const tbody = document.getElementById('places-tbody');
+      document.getElementById('place-count').textContent = places.length;
+      tbody.innerHTML = places.map(p => `
+        <tr>
+          <td class="col-name">${esc(p.name)}</td>
+          <td>${esc(cityName(p.city))} / ${esc(p.neighborhood)}</td>
+          <td>${esc(catLabel(p.category))}</td>
+          <td>${esc(p.priceRange)}</td>
+          <td>${p.since || '--'}</td>
+          <td class="col-actions">
+            <button class="row-btn" onclick="openEdit(${p.id})">Edit</button>
+            <button class="row-btn row-btn--del" onclick="deletePlace(${p.id})">Del</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function cityName(id) {
+      const c = cities.find(c => c.id === id);
+      return c ? c.name : id;
+    }
+    function catLabel(id) {
+      const c = categories.find(c => c.id === id);
+      return c ? c.label : id;
+    }
+    function esc(s) {
+      const d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+
+    // --- City editor ---
+    function renderCities() {
+      const el = document.getElementById('city-editor');
+      el.innerHTML = cities.map((c, i) => `
+        <div class="city-row">
+          <span>${esc(c.name)}</span>
+          <input type="text" value="${esc(c.tagline)}" onchange="cities[${i}].tagline = this.value">
+        </div>
+      `).join('');
+    }
+
+    // --- Populate dropdowns ---
+    function populateDropdowns() {
+      const catSel = document.getElementById('f-category');
+      const citySel = document.getElementById('f-city');
+      catSel.innerHTML = categories.map(c =>
+        `<option value="${c.id}">${c.label}</option>`
+      ).join('');
+      citySel.innerHTML = cities.map(c =>
+        `<option value="${c.id}">${c.name}</option>`
+      ).join('');
+    }
+
+    // --- Form ---
+    function openAdd() {
+      editingId = null;
+      document.getElementById('edit-title').textContent = 'Add Place';
+      document.getElementById('save-btn').textContent = 'Add';
+      clearForm();
+      document.getElementById('edit-panel').classList.add('is-open');
+      document.getElementById('f-name').focus();
+    }
+
+    function openEdit(id) {
+      const p = places.find(b => b.id === id);
+      if (!p) return;
+      editingId = id;
+      document.getElementById('edit-title').textContent = 'Edit Place';
+      document.getElementById('save-btn').textContent = 'Update';
+      document.getElementById('f-name').value = p.name || '';
+      document.getElementById('f-category').value = p.category || '';
+      document.getElementById('f-city').value = p.city || '';
+      document.getElementById('f-neighborhood').value = p.neighborhood || '';
+      document.getElementById('f-address').value = p.address || '';
+      document.getElementById('f-phone').value = p.phone || '';
+      document.getElementById('f-website').value = p.website || '';
+      document.getElementById('f-hours').value = p.hours || '';
+      document.getElementById('f-type').value = p.type || '';
+      document.getElementById('f-price').value = p.priceRange || '$$';
+      document.getElementById('f-since').value = p.since || '';
+      document.getElementById('f-featured').checked = !!p.featured;
+      document.getElementById('f-description').value = p.description || '';
+      document.getElementById('f-writeup').value = p.writeup || '';
+      document.getElementById('edit-panel').classList.add('is-open');
+      document.getElementById('f-name').focus();
+    }
+
+    function closeForm() {
+      document.getElementById('edit-panel').classList.remove('is-open');
+      editingId = null;
+    }
+
+    function clearForm() {
+      ['f-name','f-neighborhood','f-address','f-phone','f-website','f-hours','f-type','f-description','f-writeup'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('f-since').value = '';
+      document.getElementById('f-featured').checked = false;
+      document.getElementById('f-price').value = '$$';
+      if (categories.length) document.getElementById('f-category').value = categories[0].id;
+      if (cities.length) document.getElementById('f-city').value = cities[0].id;
+    }
+
+    function readForm() {
+      return {
+        name: document.getElementById('f-name').value.trim(),
+        category: document.getElementById('f-category').value,
+        city: document.getElementById('f-city').value,
+        neighborhood: document.getElementById('f-neighborhood').value.trim(),
+        address: document.getElementById('f-address').value.trim(),
+        phone: document.getElementById('f-phone').value.trim(),
+        website: document.getElementById('f-website').value.trim() || '#',
+        hours: document.getElementById('f-hours').value.trim(),
+        type: document.getElementById('f-type').value.trim(),
+        priceRange: document.getElementById('f-price').value,
+        since: parseInt(document.getElementById('f-since').value) || null,
+        featured: document.getElementById('f-featured').checked,
+        description: document.getElementById('f-description').value.trim(),
+        writeup: document.getElementById('f-writeup').value.trim()
+      };
+    }
+
+    function savePlace() {
+      const data = readForm();
+      if (!data.name) { alert('Name is required.'); return; }
+
+      if (editingId !== null) {
+        const idx = places.findIndex(p => p.id === editingId);
+        if (idx !== -1) {
+          places[idx] = { ...places[idx], ...data };
+        }
+      } else {
+        const maxId = places.reduce((m, p) => Math.max(m, p.id), 0);
+        places.push({ id: maxId + 1, ...data });
+      }
+      closeForm();
+      renderTable();
+    }
+
+    function deletePlace(id) {
+      const p = places.find(b => b.id === id);
+      if (!p) return;
+      if (!confirm(`Delete "${p.name}"?`)) return;
+      places = places.filter(b => b.id !== id);
+      renderTable();
+    }
+
+    // --- CSV Export ---
+    function downloadCSV() {
+      const headers = ['id','name','category','city','neighborhood','address','phone','website','hours','type','priceRange','since','featured','description','writeup'];
+      const rows = places.map(p => headers.map(h => csvCell(p[h])));
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      download('data.csv', csv, 'text/csv');
+    }
+
+    function csvCell(val) {
+      if (val === null || val === undefined) return '';
+      const s = String(val);
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    }
+
+    // --- CSV Import ---
+    document.getElementById('csv-upload').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const rows = parseCSV(reader.result);
+          if (rows.length < 2) { alert('CSV appears empty.'); return; }
+          const headers = rows[0];
+          const newPlaces = [];
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (row.length < headers.length) continue;
+            const obj = {};
+            headers.forEach((h, j) => obj[h.trim()] = row[j]);
+            obj.id = parseInt(obj.id) || i;
+            obj.since = parseInt(obj.since) || null;
+            obj.featured = obj.featured === 'true' || obj.featured === '1';
+            newPlaces.push(obj);
+          }
+          places = newPlaces;
+          // derive cities/categories from imported data
+          deriveCitiesAndCategories();
+          renderCities();
+          populateDropdowns();
+          renderTable();
+          alert(`Imported ${newPlaces.length} places.`);
+        } catch (err) {
+          alert('Error parsing CSV: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let cell = '';
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (inQuotes) {
+          if (ch === '"') {
+            if (text[i + 1] === '"') { cell += '"'; i++; }
+            else { inQuotes = false; }
+          } else {
+            cell += ch;
+          }
+        } else {
+          if (ch === '"') { inQuotes = true; }
+          else if (ch === ',') { row.push(cell); cell = ''; }
+          else if (ch === '\n' || (ch === '\r' && text[i + 1] === '\n')) {
+            row.push(cell); cell = '';
+            if (row.some(c => c.trim())) rows.push(row);
+            row = [];
+            if (ch === '\r') i++;
+          } else {
+            cell += ch;
+          }
+        }
+      }
+      row.push(cell);
+      if (row.some(c => c.trim())) rows.push(row);
+      return rows;
+    }
+
+    function deriveCitiesAndCategories() {
+      const cityIds = [...new Set(places.map(p => p.city))];
+      cities = cityIds.map(id => {
+        const existing = cities.find(c => c.id === id);
+        return existing || { id, name: id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), tagline: '' };
+      });
+      const catIds = [...new Set(places.map(p => p.category))];
+      categories = catIds.map(id => {
+        const existing = categories.find(c => c.id === id);
+        return existing || { id, label: id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) };
+      });
+    }
+
+    // --- data.js Export ---
+    function downloadDataJS() {
+      const jsStr = (s) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n');
+
+      let js = `// ø̈Guide — Data\n// Generated by admin panel\n\nconst OGuideData = {\n\n`;
+
+      // Cities
+      js += `  cities: [\n`;
+      cities.forEach((c, i) => {
+        js += `    { id: '${jsStr(c.id)}', name: '${jsStr(c.name)}', tagline: '${jsStr(c.tagline)}' }`;
+        js += i < cities.length - 1 ? ',\n' : '\n';
+      });
+      js += `  ],\n\n`;
+
+      // Categories
+      js += `  categories: [\n`;
+      categories.forEach((c, i) => {
+        js += `    { id: '${jsStr(c.id)}', label: '${jsStr(c.label)}' }`;
+        js += i < categories.length - 1 ? ',\n' : '\n';
+      });
+      js += `  ],\n\n`;
+
+      // Businesses
+      js += `  businesses: [\n`;
+      places.forEach((p, i) => {
+        js += `    {\n`;
+        js += `      id: ${p.id},\n`;
+        js += `      name: '${jsStr(p.name)}',\n`;
+        js += `      category: '${jsStr(p.category)}',\n`;
+        js += `      city: '${jsStr(p.city)}',\n`;
+        js += `      neighborhood: '${jsStr(p.neighborhood)}',\n`;
+        js += `      address: '${jsStr(p.address)}',\n`;
+        js += `      phone: '${jsStr(p.phone)}',\n`;
+        js += `      website: '${jsStr(p.website || '#')}',\n`;
+        js += `      hours: '${jsStr(p.hours)}',\n`;
+        js += `      type: '${jsStr(p.type)}',\n`;
+        js += `      priceRange: '${jsStr(p.priceRange)}',\n`;
+        js += `      since: ${p.since || 'null'},\n`;
+        js += `      featured: ${!!p.featured},\n`;
+        js += `      description: '${jsStr(p.description)}',\n`;
+        js += `      writeup: '${jsStr(p.writeup)}'\n`;
+        js += `    }`;
+        js += i < places.length - 1 ? ',\n' : '\n';
+      });
+      js += `  ]\n\n};\n`;
+
+      // Utility functions
+      js += `\n// --- Utility helpers ---\n\n`;
+      js += `function priceDisplay(range) {\n  return \`<span class="price-range">\${range}</span>\`;\n}\n\n`;
+      js += `function renderBusinessCard(b) {\n`;
+      js += `  const city = OGuideData.cities.find(c => c.id === b.city);\n`;
+      js += `  return \`\n`;
+      js += `    <a class="business-card" href="business.html?id=\${b.id}">\n`;
+      js += `      <div class="business-card__body">\n`;
+      js += `        <div class="business-card__meta">\n`;
+      js += `          <span class="business-card__city">\${city ? city.name : b.city} / \${b.neighborhood}</span>\n`;
+      js += `          \${priceDisplay(b.priceRange)}\n`;
+      js += `        </div>\n`;
+      js += `        <h3 class="business-card__name">\${b.name}</h3>\n`;
+      js += `        <p class="business-card__desc">\${b.description}</p>\n`;
+      js += `        <div class="business-card__footer">\n`;
+      js += `          \${b.since ? \`<span class="business-card__since">Since \${b.since}</span>\` : '<span></span>'}\n`;
+      js += `          <span class="business-card__arrow">&rarr;</span>\n`;
+      js += `        </div>\n`;
+      js += `      </div>\n`;
+      js += `    </a>\n`;
+      js += `  \`;\n}\n\n`;
+      js += `function getParam(key) {\n  return new URLSearchParams(window.location.search).get(key) || '';\n}\n`;
+
+      download('data.js', js, 'text/javascript');
+    }
+
+    function download(filename, content, mime) {
+      const blob = new Blob([content], { type: mime });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    // --- Init ---
+    renderCities();
+    populateDropdowns();
+    renderTable();
+  </script>
+</body>
+</html>
