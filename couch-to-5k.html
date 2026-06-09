@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8 Weeks to 5K</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #f9f7f4;
+      min-height: 100vh;
+      color: #1a1a1a;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    /* ── Header ── */
+    .header { margin-bottom: 28px; }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #2d6a4f;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .header p {
+      margin-top: 10px;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── Progress summary ── */
+    .summary {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 14px 16px;
+      background: #fff;
+      border: 1.5px solid #e5e0d8;
+      border-radius: 14px;
+    }
+
+    .summary-ring {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+
+    .summary-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    .summary-ring .ring-bg { stroke: #e8e4df; }
+    .summary-ring .ring-fill {
+      stroke: #2d6a4f;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .summary-pct {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #2d6a4f;
+    }
+
+    .summary-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .summary-text span {
+      font-size: 12px;
+      color: #999;
+    }
+
+    /* ── Week cards ── */
+    .weeks { display: flex; flex-direction: column; gap: 10px; }
+
+    .week-card {
+      background: #fff;
+      border: 1.5px solid #e5e0d8;
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .week-card.all-done { background: #edf7f2; border-color: #b7e4c7; }
+    .week-card.open:not(.all-done) { border-color: #2d6a4f; }
+
+    .week-header {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      gap: 12px;
+      user-select: none;
+    }
+
+    .week-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #f0ece6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #888;
+      flex-shrink: 0;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .week-badge.done { background: #2d6a4f; color: #fff; }
+
+    .week-info { flex: 1; min-width: 0; }
+
+    .week-label { font-weight: 700; font-size: 15px; }
+
+    .week-sub { font-size: 12px; color: #999; margin-top: 2px; }
+
+    .week-chevron {
+      font-size: 20px;
+      color: #bbb;
+      line-height: 1;
+      transition: transform 0.2s;
+    }
+
+    .week-card.open .week-chevron { transform: rotate(90deg); }
+
+    /* ── Sessions ── */
+    .week-sessions {
+      display: none;
+      border-top: 1px solid #f0ece6;
+      padding: 12px 16px 16px;
+    }
+
+    .week-card.open .week-sessions { display: block; }
+
+    .session + .session { margin-top: 14px; }
+
+    .session.done { opacity: 0.5; }
+
+    .session-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .check-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      border: 2px solid #ccc;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #fff;
+      margin-top: 1px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .check-btn.checked { background: #2d6a4f; border-color: #2d6a4f; }
+
+    .session-body { flex: 1; }
+
+    .session-title { font-size: 14px; font-weight: 600; }
+
+    .session-note { font-size: 12px; color: #888; margin-top: 2px; }
+
+    /* ── Bar ── */
+    .bar {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 10px;
+      border-radius: 99px;
+      background: #e8e4df;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: #2d6a4f;
+      border-radius: 99px;
+    }
+
+    .bar-label {
+      font-size: 11px;
+      color: #888;
+      white-space: nowrap;
+      min-width: 60px;
+      text-align: right;
+    }
+
+    /* ── Tips ── */
+    .tips {
+      margin-top: 24px;
+      padding: 16px;
+      background: #fff;
+      border-radius: 14px;
+      border: 1.5px solid #e5e0d8;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.7;
+    }
+
+    .tips strong { color: #1a1a1a; display: block; margin-bottom: 4px; }
+
+    /* ── Reset ── */
+    .reset-btn {
+      display: block;
+      margin: 16px auto 0;
+      background: none;
+      border: none;
+      font-size: 12px;
+      color: #bbb;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .reset-btn:hover { color: #888; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="eyebrow">Your 5K Plan</div>
+    <h1>8 weeks to a continuous 5k</h1>
+    <p>Starting from 7 min run / 3 min walk &times; 3. Easy conversational pace the whole way &mdash; if you can&rsquo;t chat, slow down.</p>
+  </div>
+
+  <div class="summary" id="summary">
+    <div class="summary-ring">
+      <svg width="44" height="44" viewBox="0 0 44 44">
+        <circle class="ring-bg" cx="22" cy="22" r="18" fill="none" stroke-width="4"/>
+        <circle class="ring-fill" id="ring-fill" cx="22" cy="22" r="18" fill="none" stroke-width="4"
+          stroke-dasharray="113.1"
+          stroke-dashoffset="113.1"/>
+      </svg>
+      <div class="summary-pct" id="summary-pct">0%</div>
+    </div>
+    <div class="summary-text">
+      <strong id="summary-title">Let&rsquo;s get started</strong>
+      <span id="summary-sub">0 of 24 sessions complete</span>
+    </div>
+  </div>
+
+  <div class="weeks" id="weeks"></div>
+
+  <div class="tips">
+    <strong>A few rules of thumb</strong>
+    Slow enough to hold a conversation = the right pace. If a week feels hard, repeat it.
+    Rest at least one day between runs. Easy week 4 is intentional &mdash; don&rsquo;t skip it.
+  </div>
+
+  <button class="reset-btn" onclick="resetProgress()">Reset all progress</button>
+</div>
+
+<script>
+const WEEKS = [
+  {
+    week: 1, label: "Where you are",
+    sessions: [
+      { run: 7, walk: 3, reps: 3, note: "Your baseline — stay comfortable" },
+      { run: 7, walk: 3, reps: 3, note: "Same as above" },
+      { run: 8, walk: 2, reps: 3, note: "Nudge the run up by 1 min" },
+    ],
+  },
+  {
+    week: 2, label: "Settling in",
+    sessions: [
+      { run: 8, walk: 2, reps: 3, note: "Keep it easy" },
+      { run: 9, walk: 2, reps: 3, note: "Almost there on continuous" },
+      { run: 10, walk: 2, reps: 3, note: "Strong finish to the week" },
+    ],
+  },
+  {
+    week: 3, label: "First long stretch",
+    sessions: [
+      { run: 10, walk: 2, reps: 3, note: "Consolidate 10-min blocks" },
+      { run: 12, walk: 2, reps: 2, note: "Two longer intervals" },
+      { run: 15, walk: 2, reps: 2, note: "Big milestone week!" },
+    ],
+  },
+  {
+    week: 4, label: "Easy week",
+    sessions: [
+      { run: 10, walk: 2, reps: 2, note: "Pull back, let your legs recover" },
+      { run: 12, walk: 2, reps: 2, note: "Relaxed effort" },
+      { run: 15, walk: 2, reps: 1, note: "One solid run, done" },
+    ],
+  },
+  {
+    week: 5, label: "Building confidence",
+    sessions: [
+      { run: 18, walk: 2, reps: 2, note: "Longest session yet" },
+      { run: 20, walk: 2, reps: 1, note: "20 min straight!" },
+      { run: 20, walk: 2, reps: 1, note: "Repeat to lock it in" },
+    ],
+  },
+  {
+    week: 6, label: "Closing the gap",
+    sessions: [
+      { run: 20, walk: 2, reps: 1, note: "Comfortable by now" },
+      { run: 25, walk: 2, reps: 1, note: "Getting close" },
+      { run: 28, walk: 2, reps: 1, note: "Almost continuous" },
+    ],
+  },
+  {
+    week: 7, label: "Almost there",
+    sessions: [
+      { run: 25, walk: 0, reps: 1, note: "First walk-free run" },
+      { run: 28, walk: 0, reps: 1, note: "Push to 28 straight" },
+      { run: 30, walk: 0, reps: 1, note: "30 minutes, no stops!" },
+    ],
+  },
+  {
+    week: 8, label: "5k week 🎉",
+    sessions: [
+      { run: 30, walk: 0, reps: 1, note: "Easy shakeout" },
+      { run: 25, walk: 0, reps: 1, note: "Stay fresh" },
+      { run: 35, walk: 0, reps: 1, note: "Run your 5k! (~30–35 min)" },
+    ],
+  },
+];
+
+const TOTAL_SESSIONS = WEEKS.reduce((n, w) => n + w.sessions.length, 0);
+
+// ── State ──────────────────────────────────────────────
+let expanded = null;
+let done = JSON.parse(localStorage.getItem('c25k-done') || '{}');
+
+function saveDone() {
+  localStorage.setItem('c25k-done', JSON.stringify(done));
+}
+
+// ── Helpers ────────────────────────────────────────────
+function sessionTitle(s) {
+  let t = `Run ${s.run} min`;
+  if (s.walk > 0) t += ` / Walk ${s.walk} min`;
+  if (s.reps > 1) t += ` × ${s.reps}`;
+  return t;
+}
+
+function summaryTitle(pct) {
+  if (pct === 0)  return "Let’s get started";
+  if (pct < 25)   return "Off to a great start";
+  if (pct < 50)   return "Building momentum";
+  if (pct < 75)   return "Halfway there!";
+  if (pct < 100)  return "Almost at the finish line";
+  return "You did it! 5K complete 🏅";
+}
+
+// ── Render ─────────────────────────────────────────────
+function render() {
+  renderSummary();
+  renderWeeks();
+}
+
+function renderSummary() {
+  const doneSessions = Object.values(done).filter(Boolean).length;
+  const pct = Math.round((doneSessions / TOTAL_SESSIONS) * 100);
+  const circumference = 2 * Math.PI * 18; // 113.097...
+
+  document.getElementById('ring-fill').style.strokeDashoffset =
+    circumference - (pct / 100) * circumference;
+  document.getElementById('summary-pct').textContent = pct + '%';
+  document.getElementById('summary-title').textContent = summaryTitle(pct);
+  document.getElementById('summary-sub').textContent =
+    `${doneSessions} of ${TOTAL_SESSIONS} sessions complete`;
+}
+
+function renderWeeks() {
+  const container = document.getElementById('weeks');
+  container.innerHTML = WEEKS.map(w => {
+    const isOpen = expanded === w.week;
+    const sessionsDone = w.sessions.filter((_, i) => done[`${w.week}-${i}`]).length;
+    const allDone = sessionsDone === w.sessions.length;
+
+    const sessionsHtml = w.sessions.map((s, i) => {
+      const key = `${w.week}-${i}`;
+      const isDone = !!done[key];
+      const total = (s.run + s.walk) * s.reps;
+      const runPct = Math.round((s.run * s.reps / total) * 100);
+
+      return `
+        <div class="session${isDone ? ' done' : ''}">
+          <div class="session-row">
+            <button
+              class="check-btn${isDone ? ' checked' : ''}"
+              aria-label="Mark session ${i + 1} done"
+              onclick="toggleDone(event, '${key}')"
+            >${isDone ? '&#10003;' : ''}</button>
+            <div class="session-body">
+              <div class="session-title">${sessionTitle(s)}</div>
+              <div class="session-note">${s.note}</div>
+              <div class="bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:${runPct}%"></div>
+                </div>
+                <span class="bar-label">${total} min total</span>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div
+        class="week-card${allDone ? ' all-done' : ''}${isOpen ? ' open' : ''}"
+        role="button"
+        aria-expanded="${isOpen}"
+        tabindex="0"
+        onclick="toggleWeek(${w.week})"
+        onkeydown="if(event.key==='Enter'||event.key===' ')toggleWeek(${w.week})"
+      >
+        <div class="week-header">
+          <div class="week-badge${allDone ? ' done' : ''}">
+            ${allDone ? '&#10003;' : `W${w.week}`}
+          </div>
+          <div class="week-info">
+            <div class="week-label">${w.label}</div>
+            <div class="week-sub">${sessionsDone}/${w.sessions.length} sessions done</div>
+          </div>
+          <div class="week-chevron">&#8250;</div>
+        </div>
+        <div class="week-sessions">${sessionsHtml}</div>
+      </div>`;
+  }).join('');
+}
+
+// ── Event handlers ─────────────────────────────────────
+function toggleWeek(week) {
+  expanded = expanded === week ? null : week;
+  render();
+}
+
+function toggleDone(e, key) {
+  e.stopPropagation();
+  done[key] = !done[key];
+  saveDone();
+  render();
+}
+
+function resetProgress() {
+  if (!confirm('Reset all progress? This cannot be undone.')) return;
+  done = {};
+  saveDone();
+  render();
+}
+
+// ── Init ───────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
