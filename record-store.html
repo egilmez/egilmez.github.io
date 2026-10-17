@@ -548,7 +548,7 @@
     #error-msg.hidden { display: none; }
 
     /* ── EMPTY STATE ─────────────────────────────────────── */
-    #empty-state {
+    #empty-state, #bin-empty {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -561,7 +561,7 @@
     }
     #empty-state.hidden { display: none; }
     #empty-state svg { opacity: 0.2; }
-    #empty-state h2 {
+    #empty-state h2, #bin-empty h2 {
       font-family: 'Special Elite', cursive;
       font-size: 1.2rem;
       color: var(--text-muted);
@@ -604,7 +604,7 @@
 
       #prev-btn, #next-btn { display: none; }
 
-      #record-display { padding: 12px 20px 8px 28px; }
+      #record-display { padding: 24px 20px 8px 28px; }  /* room for the crate shadow below the section bar */
 
       #crate-wrap {
         width: min(88vw, 340px);
@@ -679,18 +679,18 @@
       gap: 16px;
     }
     #stores-panel.hidden { display: none; }
-    #stores-grid {
+    #stores-grid, #viewed-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: 12px;
     }
-    #stores-empty {
+    #stores-empty, #viewed-empty {
       color: var(--text-muted);
       font-size: 0.82rem;
       text-align: center;
       padding: 40px 20px;
     }
-    #stores-empty.hidden { display: none; }
+    #stores-empty.hidden, #viewed-empty.hidden { display: none; }
     .store-card {
       position: relative;
       display: flex;
@@ -907,6 +907,184 @@
     }
     #f-clear-btn:hover { color: var(--red); border-color: var(--red); }
 
+    /* ── SECTION BAR (bin dividers) ───────────────────────── */
+    #section-bar {
+      flex-shrink: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    #section-bar.hidden,
+    #bin-empty.hidden,
+    #stage.hidden,
+    #record-display.hidden { display: none; }
+    .section-row {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      min-width: 0;
+    }
+    .section-row::-webkit-scrollbar { display: none; }
+    .section-row.hidden { display: none; }
+    #section-groups { gap: 14px; }
+    .group-btn {
+      background: none;
+      border: none;
+      border-bottom: 1px solid transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 2px 0;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .group-btn:hover { color: var(--text); }
+    .group-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    /* Divider tabs: cardboard bin cards poking up out of the crate */
+    .divider-tab {
+      flex-shrink: 0;
+      background: linear-gradient(to bottom, #2e251b, var(--surface2));
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      color: var(--text-muted);
+      font-family: 'Special Elite', cursive;
+      font-size: 0.78rem;
+      letter-spacing: 0.03em;
+      padding: 5px 12px 4px;
+      margin-top: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.12s, margin-top 0.12s, background 0.12s;
+    }
+    .divider-tab:hover { color: var(--text); margin-top: 1px; }
+    .divider-tab.active {
+      color: #1a1208;
+      background: linear-gradient(145deg, #fffde6, #f5e8c4);
+      border-color: #f5e8c4;
+      margin-top: 0;
+    }
+    .divider-tab .tab-count {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.62rem;
+      opacity: 0.7;
+      margin-left: 5px;
+    }
+    .divider-tab.sub { font-size: 0.7rem; padding: 3px 9px 3px; }
+    #section-subtabs { padding-left: 14px; }
+    #section-tabs.letter-rail .divider-tab { padding: 3px 7px; min-width: 24px; text-align: center; }
+    .section-note {
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      align-self: center;
+      flex-shrink: 0;
+      padding: 0 6px;
+    }
+
+    @media (max-width: 768px) {
+      #section-bar { padding: 6px 12px 0; }
+    }
+
+    /* ── SEEN STAMP ON JACKET ──────────────────────────────── */
+    #seen-stamp {
+      position: absolute;
+      left: 10px;
+      bottom: 12px;
+      z-index: 3;
+      font-family: 'Special Elite', cursive;
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      color: var(--red);
+      border: 2px solid var(--red);
+      border-radius: 3px;
+      padding: 3px 8px 2px;
+      background: rgba(15, 12, 9, 0.75);
+      transform: rotate(-6deg);
+      pointer-events: none;
+    }
+    #seen-stamp.hidden { display: none; }
+
+    /* ── VIEWED PANEL ─────────────────────────────────────── */
+    #viewed-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    #viewed-panel.hidden { display: none; }
+    #viewed-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    #viewed-search {
+      flex: 1;
+      min-width: 160px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      border-radius: 2px;
+      outline: none;
+    }
+    #viewed-search:focus { border-color: var(--accent); }
+    #viewed-count { font-size: 0.7rem; color: var(--text-muted); }
+    #viewed-clear {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 10px;
+      font-family: inherit;
+      font-size: 0.72rem;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    #viewed-clear:hover { color: var(--red); border-color: var(--red); }
+    #viewed-clear.hidden { display: none; }
+    .viewed-day {
+      font-family: 'Special Elite', cursive;
+      font-size: 0.8rem;
+      color: var(--accent);
+      grid-column: 1 / -1;
+      padding-top: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    img.store-card-thumb { display: block; object-fit: cover; }
+    .viewed-meta {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .viewed-store { color: var(--accent); cursor: pointer; }
+    .viewed-store:hover { text-decoration: underline; }
+
+    .settings-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text);
+      cursor: pointer;
+      margin-bottom: 6px;
+    }
+    .settings-check input { accent-color: var(--accent); }
+
     /* ── SETTINGS PANEL (above bottom bar) ───────────────── */
     #settings-panel {
       flex-shrink: 0;
@@ -951,6 +1129,7 @@
       <div id="tab-row">
         <button class="tab-btn active" id="tab-browse">Browse</button>
         <button class="tab-btn" id="tab-stores">Stores</button>
+        <button class="tab-btn" id="tab-viewed">Viewed</button>
       </div>
     </div>
     <div id="url-row">
@@ -962,6 +1141,13 @@
       <button id="load-btn">Load</button>
     </div>
   </header>
+
+  <!-- SECTION BAR (bin dividers, shown once a store is loaded) -->
+  <nav id="section-bar" class="hidden" aria-label="Store sections">
+    <div class="section-row" id="section-groups"></div>
+    <div class="section-row" id="section-tabs"></div>
+    <div class="section-row hidden" id="section-subtabs"></div>
+  </nav>
 
   <!-- STAGE -->
   <div id="stage">
@@ -1011,6 +1197,11 @@
       </p>
     </div>
 
+    <!-- EMPTY BIN (active section has nothing to show) -->
+    <div id="bin-empty" class="hidden">
+      <h2>This bin is empty</h2>
+    </div>
+
     <!-- RECORD DISPLAY (hidden until loaded) -->
     <div id="record-display" class="hidden">
       <div id="crate-wrap">
@@ -1019,6 +1210,7 @@
         <div id="record-jacket">
           <img id="album-art" src="" alt="Album cover">
           <div id="price-tag" class="hidden"></div>
+          <div id="seen-stamp" class="hidden">SEEN</div>
           <div id="art-skeleton"></div>
           <div id="no-image-placeholder" class="hidden">
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -1105,6 +1297,17 @@
     <div id="stores-empty" class="hidden">No stores visited yet. Load a seller or artist URL to start your history.</div>
   </div>
 
+  <!-- VIEWED RECORDS PANEL -->
+  <div id="viewed-panel" class="hidden">
+    <div id="viewed-toolbar">
+      <input id="viewed-search" type="search" placeholder="Search records you've seen…" autocomplete="off" spellcheck="false">
+      <span id="viewed-count"></span>
+      <button id="viewed-clear">Clear history</button>
+    </div>
+    <div id="viewed-grid"></div>
+    <div id="viewed-empty" class="hidden">Nothing viewed yet. Records you flip past show up here.</div>
+  </div>
+
   <!-- TOUCH NAV (mobile) -->
   <div id="touch-nav-row">
     <button class="touch-nav-btn" id="touch-prev">&#8592;</button>
@@ -1114,6 +1317,11 @@
   <!-- SETTINGS PANEL (collapsible, above bottom bar) -->
   <div id="settings-panel" class="hidden">
     <div id="settings-inner">
+      <span class="settings-label">Browsing</span>
+      <label class="settings-check">
+        <input type="checkbox" id="hide-seen-toggle">
+        Hide records I've already seen
+      </label>
       <span class="settings-label">Discogs Token</span>
       <div id="token-row">
         <input id="discogs-token" type="text"
@@ -1133,7 +1341,7 @@
     <span id="pagination-counter">— / —</span>
     <span id="loading-indicator" class="hidden">loading…</span>
     <span id="error-msg" class="hidden"></span>
-    <button id="settings-toggle-btn" title="Token settings">&#9881;</button>
+    <button id="settings-toggle-btn" title="Settings">&#9881;</button>
   </footer>
 
   <script>
@@ -1142,24 +1350,82 @@
 
     const API = 'https://api.discogs.com';
 
+    const PER_PAGE    = 100;
+    const MAX_PAGE    = 100; // Discogs refuses page > 100 on other users' inventories
+    const INDEX_CAP   = 30;  // max pages of the 'all' feed crawled for client-side sections
+    const CACHE_TTL   = 6 * 60 * 60 * 1000;
+    const CACHE_VER   = 2;   // bump when the cached listing shape changes (v2: listing `key`)
+    const NEW_DAYS    = 14;
+
+    // Top-level Discogs genres. Inventory `q=` matches genre/style server-side,
+    // but breaks on "/", so "Funk / Soul" and "Folk, World, & Country" are probed by one word.
+    const GENRES = ['Electronic', 'Hip Hop', 'Jazz', 'Funk', 'Soul', 'Rock', 'Pop', 'Reggae', 'Latin',
+                    'Blues', 'Classical', 'Folk', 'Stage & Screen', 'Non-Music', "Children's"];
+    const STYLES = {
+      'Electronic': ['House', 'Deep House', 'Techno', 'Disco', 'Acid', 'Garage House', 'Electro', 'Italo-Disco',
+                     'Breakbeat', 'Drum n Bass', 'Ambient', 'Minimal', 'Tech House', 'Downtempo', 'Dub Techno',
+                     'Acid House', 'Hardcore', 'Jungle', 'Trance', 'Synth-pop', 'Experimental'],
+      'Hip Hop':    ['Boom Bap', 'Conscious', 'Gangsta', 'Thug Rap', 'Instrumental', 'Trip Hop', 'Turntablism',
+                     'Pop Rap', 'Jazzy Hip-Hop', 'Hardcore Hip-Hop', 'Bass Music', 'Miami Bass'],
+      'Jazz':       ['Soul-Jazz', 'Jazz-Funk', 'Fusion', 'Hard Bop', 'Bop', 'Modal', 'Free Jazz', 'Latin Jazz',
+                     'Contemporary Jazz', 'Smooth Jazz', 'Big Band', 'Cool Jazz'],
+      'Funk':       ['Boogie', 'P.Funk', 'Disco', 'Rhythm & Blues', 'Neo Soul', 'Gospel'],
+      'Soul':       ['Neo Soul', 'Northern Soul', 'Rhythm & Blues', 'Contemporary R&B', 'Gospel'],
+      'Rock':       ['Punk', 'Post-Punk', 'Indie Rock', 'New Wave', 'Psychedelic Rock', 'Alternative Rock',
+                     'Hard Rock', 'Prog Rock', 'Garage Rock', 'Shoegaze', 'Krautrock', 'Classic Rock'],
+      'Pop':        ['Synth-pop', 'Ballad', 'Europop', 'Vocal', 'Soft Rock', 'Dance-pop'],
+      'Reggae':     ['Dub', 'Roots Reggae', 'Dancehall', 'Ska', 'Rocksteady', 'Lovers Rock'],
+      'Latin':      ['Salsa', 'Bossa Nova', 'Samba', 'Cumbia', 'MPB', 'Afro-Cuban', 'Latin House']
+    };
+
     // ── STATE ─────────────────────────────────────────────
+    // Each section is its own crate: a server feed (Discogs inventory with params)
+    // or a client view (predicate over the crawled 'all' feed).
     const state = {
-      listings: [],
-      currentIndex: -1,
-      pagination: { page: 0, pages: 1, totalItems: 0 },
+      sections: new Map(),
+      activeSectionId: 'all',
+      group: 'shelves',
+      activeGenre: null,
+      genreCounts: null,     // { Electronic: 1633, ... } once probed
+      styleCounts: {},       // { 'Deep House': 133, ... }
+      styleProbed: {},       // { Electronic: true } once its styles are counted
+      hideSeen: true,        // skip records seen before entering the section (setting)
+      seenBaseline: new Set(), // keys seen as of entering the section; this pass's views stay visible
       loading: false,
       query: null,
       token: '',
       filters: { priceMin: '', priceMax: '', formats: [] }
     };
 
+    let pendingSection = null;  // from ?section= on page load
+
+    function makeSection(id, group, label, opts = {}) {
+      return {
+        id, group, label,
+        kind: opts.params ? 'server' : 'client',
+        params: opts.params || null,
+        predicate: opts.predicate || null,
+        sortFn: opts.sortFn || null,
+        listings: [],
+        currentIndex: 0,
+        firstPage: 1,        // > 1 after an A–Z letter jump
+        touched: false,      // user has flipped here; keep their record as the list re-sorts
+        pagination: { page: 0, pages: 1, totalItems: 0 },
+        loaded: false
+      };
+    }
+
+    function sec(id = state.activeSectionId) { return state.sections.get(id); }
+    function allSec() { return state.sections.get('all'); }
+
     // ── FILTERED LISTING VIEW ─────────────────────────────
-    function getVisibleListings() {
+    function getVisibleListings(s = sec()) {
       const f = state.filters;
-      return state.listings.filter(l => {
+      return s.listings.filter(l => {
+        if (state.hideSeen && state.seenBaseline.has(l.key)) return false;
         if (f.priceMin !== '' || f.priceMax !== '') {
-          const num = parseFloat(l.price.replace(/[^0-9.]/g, ''));
-          if (isNaN(num)) return false;
+          const num = l.priceValue;
+          if (num == null || isNaN(num)) return false;
           if (f.priceMin !== '' && num < parseFloat(f.priceMin)) return false;
           if (f.priceMax !== '' && num > parseFloat(f.priceMax)) return false;
         }
@@ -1204,6 +1470,8 @@
     const paginationCtr = $('pagination-counter');
     const loadingInd    = $('loading-indicator');
     const errorMsg      = $('error-msg');
+    const sectionBar    = $('section-bar');
+    const binEmpty      = $('bin-empty');
 
     // ── RESTORE SAVED TOKEN ───────────────────────────────
     const savedToken = localStorage.getItem('discogs_token');
@@ -1237,7 +1505,8 @@
     async function saveStore() {
       if (!state.query) return;
       const name = state.query.username || state.query.artistName || state.query.artistId || state.query.rawUrl || '';
-      const thumb = state.listings[0] ? state.listings[0].imageUrl : '';
+      const first = allSec() && allSec().listings[0];
+      const thumb = first ? first.imageUrl : '';
       let avatar = '', location = '';
 
       if (state.query.type === 'seller' && state.query.username) {
@@ -1319,25 +1588,22 @@
     const stage     = $('stage');
     const storesPanel = $('stores-panel');
 
+    const viewedPanel = $('viewed-panel');
+
     function switchTab(tab) {
-      const tabBrowse = $('tab-browse');
-      const tabStores = $('tab-stores');
-      if (tab === 'browse') {
-        stage.classList.remove('hidden');
-        storesPanel.classList.add('hidden');
-        tabBrowse.classList.add('active');
-        tabStores.classList.remove('active');
-      } else {
-        stage.classList.add('hidden');
-        storesPanel.classList.remove('hidden');
-        tabBrowse.classList.remove('active');
-        tabStores.classList.add('active');
-        renderStoresHistory();
-      }
+      const browsing = tab === 'browse';
+      stage.classList.toggle('hidden', !browsing);
+      sectionBar.classList.toggle('hidden', !(browsing && state.query && allSec() && allSec().listings.length));
+      storesPanel.classList.toggle('hidden', tab !== 'stores');
+      viewedPanel.classList.toggle('hidden', tab !== 'viewed');
+      ['browse', 'stores', 'viewed'].forEach(t => $(`tab-${t}`).classList.toggle('active', t === tab));
+      if (tab === 'stores') renderStoresHistory();
+      if (tab === 'viewed') { flushSeen(); renderViewed(); }
     }
 
     $('tab-browse').addEventListener('click', () => switchTab('browse'));
     $('tab-stores').addEventListener('click', () => switchTab('stores'));
+    $('tab-viewed').addEventListener('click', () => switchTab('viewed'));
 
     // ── SHAREABLE URL — restore from ?url= on page load ───
     (function restoreSharedUrl() {
@@ -1345,6 +1611,7 @@
       const sharedUrl = params.get('url');
       if (sharedUrl) {
         urlInput.value = sharedUrl;
+        pendingSection = params.get('section');
         if (savedToken) setTimeout(startLoad, 0);
       }
     })();
@@ -1379,9 +1646,11 @@
       return null;
     }
 
-    function buildApiUrl(query, page) {
+    function buildApiUrl(query, page, params = null, perPage = PER_PAGE) {
       if (query.type === 'seller') {
-        return `${API}/users/${encodeURIComponent(query.username)}/inventory?status=For+Sale&sort=listed&sort_order=desc&per_page=100&page=${page}`;
+        const p = new URLSearchParams({ status: 'For Sale', sort: 'listed', sort_order: 'desc',
+                                        ...(params || {}), per_page: perPage, page });
+        return `${API}/users/${encodeURIComponent(query.username)}/inventory?${p}`;
       }
       if (query.type === 'artist') {
         return `${API}/database/search?artist=${encodeURIComponent(query.artistName)}&type=release&per_page=50&page=${page}`;
@@ -1395,26 +1664,84 @@
       return null;
     }
 
-    // ── API FETCH — direct to Discogs, no third-party proxy ──
-    async function fetchPage(query, page) {
-      // For artist queries, resolve the name first (API needs name, not id)
-      if (query.type === 'artist' && !query.artistName) {
-        const artistRes = await fetch(`${API}/artists/${query.artistId}`, {
-          headers: { 'Authorization': `Discogs token=${state.token}` }
-        });
-        if (artistRes.status === 404) throw new Error('Artist not found — double-check the URL.');
-        if (!artistRes.ok) throw new Error(`Could not resolve artist (HTTP ${artistRes.status}).`);
-        const artistData = await artistRes.json();
-        query.artistName  = artistData.name;
-        query.artistImage = (artistData.images && artistData.images[0]) ? (artistData.images[0].uri || '') : '';
-      }
+    // ── REQUEST QUEUE ─────────────────────────────────────
+    // Discogs allows 60 req/min per token but doesn't expose the rate-limit
+    // headers to browsers (CORS), so we self-throttle with a sliding window.
+    // Higher priority runs first: 2 = what you're looking at, 1 = counts, 0 = background crawl.
+    const apiQueue = { jobs: [], sent: [], active: 0, timer: null, pausedUntil: 0, generation: 0 };
+    const WINDOW_MS = 60000;
+    // Per-priority share of the window: background work always leaves headroom for clicks
+    const WINDOW_BUDGET = { 2: 50, 1: 38, 0: 30 };
 
-      const url = buildApiUrl(query, page);
-      if (!url) throw new Error('Unsupported URL type');
-
-      const res = await fetch(url, {
-        headers: { 'Authorization': `Discogs token=${state.token}` }
+    function apiFetch(url, priority = 2) {
+      return new Promise((resolve, reject) => {
+        apiQueue.jobs.push({ url, priority, resolve, reject, gen: apiQueue.generation, tries: 0 });
+        apiQueue.jobs.sort((a, b) => b.priority - a.priority);
+        pumpQueue();
       });
+    }
+
+    // Drops queued background work from a previous store
+    function resetQueue() {
+      apiQueue.generation++;
+      apiQueue.jobs.forEach(j => j.reject(new Error('cancelled')));
+      apiQueue.jobs = [];
+    }
+
+    // Concurrent requests allowed when the next job starts: background only runs on an idle queue
+    const MAX_ACTIVE = { 2: 3, 1: 2, 0: 1 };
+
+    function pumpQueue() {
+      if (apiQueue.timer) return;
+      while (apiQueue.jobs.length) {
+        const now = Date.now();
+        apiQueue.sent = apiQueue.sent.filter(t => now - t < WINDOW_MS);
+        const job = apiQueue.jobs[0];
+        if (apiQueue.active >= MAX_ACTIVE[job.priority]) return;  // re-pumped when a request finishes
+        if (now < apiQueue.pausedUntil || apiQueue.sent.length >= WINDOW_BUDGET[job.priority]) {
+          apiQueue.timer = setTimeout(() => { apiQueue.timer = null; pumpQueue(); }, 500);
+          return;
+        }
+        apiQueue.jobs.shift();
+        apiQueue.sent.push(now);
+        apiQueue.active++;
+        runJob(job);
+      }
+    }
+
+    async function runJob(job) {
+      try {
+        const res = await fetch(job.url, { headers: { 'Authorization': `Discogs token=${state.token}` } });
+        if (res.status === 429 && job.tries < 2) {
+          job.tries++;
+          apiQueue.pausedUntil = Date.now() + 20000;
+          apiQueue.jobs.push(job);
+          apiQueue.jobs.sort((a, b) => b.priority - a.priority);
+        } else {
+          job.resolve(res);
+        }
+      } catch (err) {
+        // Edge-level 429/5xx responses lack CORS headers, so they surface as network errors
+        if (job.tries < 2) {
+          job.tries++;
+          apiQueue.pausedUntil = Date.now() + 5000 * job.tries;
+          apiQueue.jobs.push(job);
+          apiQueue.jobs.sort((a, b) => b.priority - a.priority);
+        } else {
+          job.reject(err);
+        }
+      } finally {
+        apiQueue.active--;
+        pumpQueue();
+      }
+    }
+
+    async function apiJson(url, priority) {
+      const res = await apiFetch(url, priority);
+      if (res.status === 403) {
+        const body = await res.json().catch(() => ({}));
+        if (/pagination/i.test(body.message || '')) throw new Error(`Discogs: ${body.message}`);
+      }
       if (res.status === 401 || res.status === 403) throw new Error('Token invalid or expired — check discogs.com/settings/developers.');
       if (res.status === 404) throw new Error('Not found — double-check the URL.');
       if (res.status === 429) throw new Error('Rate limited by Discogs. Wait a moment and try again.');
@@ -1422,10 +1749,33 @@
       return res.json();
     }
 
+    // ── API FETCH — direct to Discogs, no third-party proxy ──
+    async function fetchPage(query, page, params = null, priority = 2) {
+      // For artist queries, resolve the name first (API needs name, not id)
+      if (query.type === 'artist' && !query.artistName) {
+        const artistRes = await apiFetch(`${API}/artists/${query.artistId}`, priority);
+        if (artistRes.status === 404) throw new Error('Artist not found — double-check the URL.');
+        if (!artistRes.ok) throw new Error(`Could not resolve artist (HTTP ${artistRes.status}).`);
+        const artistData = await artistRes.json();
+        query.artistName  = artistData.name;
+        query.artistImage = (artistData.images && artistData.images[0]) ? (artistData.images[0].uri || '') : '';
+      }
+
+      const url = buildApiUrl(query, page, params);
+      if (!url) throw new Error('Unsupported URL type');
+      return apiJson(url, priority);
+    }
+
+    // Item count for a seller inventory search, via a 1-item page
+    async function fetchCount(params) {
+      const data = await apiJson(buildApiUrl(state.query, 1, params, 1), 1);
+      return (data.pagination && data.pagination.items) || 0;
+    }
+
     // ── NORMALISE ─────────────────────────────────────────
     // /inventory, /marketplace/search, and /database/search all return
     // different shapes. Normalise to a common object.
-    function normalizeListing(raw) {
+    function normalizeListingShape(raw) {
       // Database search result shape (artist browse via /database/search)
       if (raw.community !== undefined) {
         return {
@@ -1506,6 +1856,35 @@
       };
     }
 
+    // Derived fields used by sections (sorting, shelves, format/decade bins)
+    function normalizeListing(raw) {
+      const l = normalizeListingShape(raw);
+      const r = raw.release || {};
+      const stats = (r.stats && r.stats.community) || raw.community || {};
+      l.priceValue = raw.price && raw.price.value != null ? parseFloat(raw.price.value) : null;
+      l.currency   = raw.price ? raw.price.currency : '';
+      l.posted     = raw.posted ? Date.parse(raw.posted) : null;
+      l.wants      = stats.in_wantlist != null ? stats.in_wantlist : (stats.want || 0);
+      l.releaseId  = r.id || raw.id;
+      l.yearNum    = parseInt(l.year, 10) || 0;
+      l.formatBin  = formatBin(l.format);
+      // Marketplace listings and database releases are different id spaces
+      l.key        = (raw.community !== undefined ? 'r' : 'l') + raw.id;
+      return l;
+    }
+
+    // Bucket a Discogs format string ("2xLP, Album", '12", Promo', "Vinyl, 7\"") into one bin
+    function formatBin(fmt) {
+      if (!fmt) return 'Other';
+      if (/\bLP\b/.test(fmt)) return 'LP';
+      if (/12"/.test(fmt)) return '12"';
+      if (/10"/.test(fmt)) return '10"';
+      if (/7"/.test(fmt)) return '7"';
+      if (/\bCD/.test(fmt)) return 'CD';
+      if (/Cass/.test(fmt)) return 'Cassette';
+      return 'Other';
+    }
+
     // ── CONDITION BADGE ───────────────────────────────────
     function conditionBadge(cond) {
       if (!cond) return '<span class="meta-val">—</span>';
@@ -1520,7 +1899,7 @@
     // ── RENDER ────────────────────────────────────────────
     function renderContent(quick = false) {
       const visible = getVisibleListings();
-      const listing = visible[state.currentIndex];
+      const listing = visible[sec().currentIndex];
       if (!listing) return;
 
       // Caption
@@ -1571,6 +1950,10 @@
         }, 80);
       }
 
+      // Seen stamp is for records seen before this pass; then record this view
+      $('seen-stamp').classList.toggle('hidden', !state.seenBaseline.has(listing.key));
+      markSeen(listing);
+
       // Price sticker on jacket
       const priceTag = $('price-tag');
       if (listing.price && listing.price !== '—') {
@@ -1612,17 +1995,36 @@
       $('search-bandcamp').href     = `https://bandcamp.com/search?q=${q}`;
       $('search-soundcloud').href   = `https://soundcloud.com/search?q=${q}`;
 
-      // Pagination
-      const filterActive = state.filters.priceMin !== '' || state.filters.priceMax !== '' || state.filters.formats.length > 0;
-      const total = filterActive ? visible.length : (state.pagination.totalItems || state.listings.length);
-      const suffix = filterActive ? ` (${visible.length} filtered)` : '';
-      paginationCtr.textContent = `${state.currentIndex + 1} / ${total}${suffix}`;
+      updateCounter();
+    }
 
-      // Nav buttons
-      prevBtn.disabled = state.currentIndex <= 0;
-      nextBtn.disabled = state.currentIndex >= visible.length - 1 && state.pagination.page >= state.pagination.pages;
+    // Counter + nav buttons for the active section
+    function updateCounter() {
+      const s = sec();
+      const visible = getVisibleListings();
+      const filterActive = state.filters.priceMin !== '' || state.filters.priceMax !== '' || state.filters.formats.length > 0;
+      const skipped = state.hideSeen ? s.listings.filter(l => state.seenBaseline.has(l.key)).length : 0;
+      let total, pos;
+      if (filterActive) {
+        total = visible.length;
+        pos = s.currentIndex + 1;
+      } else {
+        total = s.kind === 'server'
+          ? (s.pagination.totalItems || s.listings.length) - skipped
+          : `${s.listings.length - skipped}${hasMore(s) ? '+' : ''}`;
+        pos = (s.firstPage - 1) * PER_PAGE + s.currentIndex + 1;  // approximate after an A–Z jump when skipping seen
+      }
+      let suffix = filterActive ? ` (${visible.length} filtered)` : '';
+      if (skipped) suffix += ` · ${skipped} seen skipped`;
+      let prefix = s.id === 'all' ? '' : `${s.label} · `;
+      if (s.id === 'az' && visible[s.currentIndex]) prefix = `A–Z · ${letterOf(visible[s.currentIndex].artist)} · `;
+      paginationCtr.textContent = visible.length ? `${prefix}${pos} / ${total}${suffix}` : `${prefix}0 / 0`;
+
+      prevBtn.disabled = s.currentIndex <= 0 && s.firstPage <= 1;
+      nextBtn.disabled = s.currentIndex >= visible.length - 1 && !hasMore(s);
       touchPrev.disabled = prevBtn.disabled;
       touchNext.disabled = nextBtn.disabled;
+      if (s.id === 'az' && state.group === 'az') renderSectionBar();  // keep the letter rail in step
     }
 
     function render() {
@@ -1633,12 +2035,19 @@
     let animating = false;
 
     function navigate(delta) {
-      if (state.loading || animating) return;
+      if (state.loading || animating || !state.query) return;
+      const s = sec();
       const visible = getVisibleListings();
-      const next = state.currentIndex + delta;
-      if (next < 0) return;
+      const next = s.currentIndex + delta;
+      if (next < 0) {
+        if (s.firstPage > 1) loadPrev(s);
+        return;
+      }
       if (next >= visible.length) {
-        if (state.pagination.page < state.pagination.pages) loadNextPage();
+        if (hasMore(s)) foreground(fillVisible(s, next + 1)).then(() => {
+          updateCounter();
+          if (sec() === s && getVisibleListings().length > next) navigate(delta);
+        });
         return;
       }
 
@@ -1652,7 +2061,8 @@
 
       setTimeout(() => {
         // Phase 2 — swap content while card is "away"
-        state.currentIndex = next;
+        s.currentIndex = next;
+        s.touched = true;
         renderContent(true); // quick=true: no cross-fade, set src immediately
 
         // Set enter start position (no transition so browser records this state)
@@ -1670,51 +2080,98 @@
           setTimeout(() => { animating = false; }, 230);
         }));
 
-        // Prefetch if near end
-        if (visible.length - next < 10 && state.pagination.page < state.pagination.pages) {
-          loadNextPage();
+        // Prefetch if near end (doesn't block flipping)
+        if (visible.length - next < 10 && hasMore(s)) {
+          loadMore(s, 1).then(() => { if (sec() === s) updateCounter(); }).catch(() => {});
         }
       }, 210);
     }
 
     // ── LOAD ──────────────────────────────────────────────
-    async function loadNextPage() {
-      if (state.loading || state.pagination.page >= state.pagination.pages) return;
+    const inflight = new Map(); // section id -> pending page load
+
+    // True while the background crawl of 'all' still has pages left (up to INDEX_CAP)
+    function indexIncomplete() {
+      const a = allSec();
+      return a.pagination.page < Math.min(a.pagination.pages, INDEX_CAP);
+    }
+
+    function hasMore(s) {
+      if (s.kind === 'client') return indexIncomplete();
+      return s.pagination.page < s.pagination.pages;
+    }
+
+    function normalizeAll(data) {
+      const raw = data.listings || data.results || [];
+      return raw.reduce((acc, item) => {
+        try { acc.push(normalizeListing(item)); } catch (_) { /* skip malformed listing */ }
+        return acc;
+      }, []);
+    }
+
+    // Append the next page to a section. Client sections grow by crawling 'all'.
+    function loadMore(s, priority = 2) {
+      if (s.kind === 'client') return loadMore(allSec(), priority);
+      if (!hasMore(s)) return Promise.resolve();
+      if (inflight.has(s.id)) return inflight.get(s.id);
+      const gen = apiQueue.generation;
+      const p = (async () => {
+        const nextPage = s.pagination.page + 1;
+        const data = await fetchPage(state.query, nextPage, s.params, priority);
+        if (gen !== apiQueue.generation) return;
+        s.listings.push(...normalizeAll(data));
+        const pg = data.pagination || {};
+        s.pagination = { page: pg.page || nextPage, pages: Math.min(pg.pages || 1, MAX_PAGE),
+                         totalItems: pg.items || s.listings.length };
+        s.loaded = true;
+        if (s.id === 'all') refreshClientSections();
+      })().finally(() => inflight.delete(s.id));
+      inflight.set(s.id, p);
+      return p;
+    }
+
+    // Prepend the page before the first loaded one (after an A–Z jump)
+    function loadPrev(s) {
+      return foreground((async () => {
+        const page = s.firstPage - 1;
+        const data = await fetchPage(state.query, page, s.params);
+        const before = getVisibleListings(s).length;
+        s.listings = [...normalizeAll(data), ...s.listings];
+        s.firstPage = page;
+        s.currentIndex += getVisibleListings(s).length - before - 1;
+        showSection();
+      })());
+    }
+
+    // Load pages until the section has `need` visible records (seen ones may fill whole pages)
+    async function fillVisible(s, need) {
+      for (let i = 0; i < 10 && getVisibleListings(s).length < need && hasMore(s); i++) {
+        await loadMore(s);
+      }
+    }
+
+    // Run a load the user is waiting on: blocks flipping and shows the indicator
+    async function foreground(promise) {
       state.loading = true;
       loadingInd.classList.remove('hidden');
-
       try {
-        const nextPage = state.pagination.page + 1;
-        const data = await fetchPage(state.query, nextPage);
-        const raw = data.listings || data.results || [];
-        const normalized = raw.reduce((acc, item) => {
-          try { acc.push(normalizeListing(item)); } catch (_) { /* skip malformed listing */ }
-          return acc;
-        }, []);
-        state.listings.push(...normalized);
-
-        const pg = data.pagination || {};
-        state.pagination.page  = pg.page  || nextPage;
-        state.pagination.pages = pg.pages || 1;
-        state.pagination.totalItems = pg.items || state.listings.length;
-
-        // If navigating forward was pending (first page)
-        if (state.currentIndex < 0 && state.listings.length > 0) {
-          state.currentIndex = 0;
-          showRecordDisplay();
-          render();
-          saveStore(); // record this store in history
-          rebuildFilterOptions();
-        } else {
-          render();
-          rebuildFilterOptions();
-        }
+        await promise;
       } catch (err) {
-        showError(err.message);
+        if (err.message !== 'cancelled') showError(err.message);
       } finally {
         state.loading = false;
         loadingInd.classList.add('hidden');
       }
+    }
+
+    // Background crawl of 'all' so client sections (format, decade, shelves) cover the store
+    async function crawlIndex() {
+      const gen = apiQueue.generation;
+      const a = allSec();
+      while (gen === apiQueue.generation && indexIncomplete()) {
+        try { await loadMore(a, 0); } catch (_) { return; }
+      }
+      if (gen === apiQueue.generation) saveCache();
     }
 
     async function startLoad() {
@@ -1737,28 +2194,589 @@
       saveUrlHistory(raw);
       state.token = token;
       localStorage.setItem('discogs_token', token);
+      resetQueue();
+      inflight.clear();
       state.query = query;
-      state.listings = [];
-      state.currentIndex = -1;
-      state.pagination = { page: 0, pages: 1, totalItems: 0 };
+      state.sections = new Map();
+      ensureSection('all');
+      shelfIds().forEach(ensureSection);
+      state.activeSectionId = 'all';
+      state.group = 'shelves';
+      state.activeGenre = null;
+      state.genreCounts = null;
+      state.styleCounts = {};
+      state.styleProbed = {};
       state.loading = false;
       state.filters = { priceMin: '', priceMax: '', formats: [] };
       $('f-price-min').value = '';
       $('f-price-max').value = '';
       $('f-format-chips').innerHTML = '';
+      const wantSection = pendingSection;
+      pendingSection = null;
+      snapshotSeen();
 
       hideError();
       showLoadingSkeleton();
+      sectionBar.classList.add('hidden');
       // Update browser URL so this page is shareable
       const pageUrl = new URL(window.location.href);
       pageUrl.searchParams.set('url', raw);
+      pageUrl.searchParams.delete('section');
       history.replaceState(null, '', pageUrl.toString());
-      await loadNextPage();
+
+      const cached = loadCache();
+      if (cached) {
+        const a = allSec();
+        a.listings = cached.all.listings;
+        a.pagination = cached.all.pagination;
+        a.loaded = true;
+        state.genreCounts = cached.genreCounts || null;
+        state.styleCounts = cached.styleCounts || {};
+        state.styleProbed = cached.styleProbed || {};
+        refreshClientSections();
+      } else {
+        await foreground(loadMore(allSec()));
+      }
+      if (allSec().listings.length === 0) {
+        if (errorMsg.classList.contains('hidden')) showError('Nothing for sale here.');
+        return;
+      }
+
+      saveStore(); // record this store in history
+      sectionBar.classList.remove('hidden');
+      rebuildFilterOptions();
+      if (wantSection && sectionAllowed(wantSection)) {
+        const s = ensureSection(wantSection);
+        state.group = s.group;
+        if (s.group === 'genre') state.activeGenre = wantSection.startsWith('g:') ? s.label : genreOfStyle(s.label);
+        selectSection(wantSection);
+      } else {
+        renderSectionBar();
+        showSection();
+      }
+
+      crawlIndex();
+      if (query.type === 'seller' && !state.genreCounts) probeGenres();
+      if (state.activeGenre) probeStyles(state.activeGenre);
+    }
+
+    // ── SEEN RECORDS (local history) ──────────────────────
+    const SEEN_KEY = 'rs_seen';
+    const SEEN_MAX = 1500;
+    let seen = {};          // key -> { key, title, artist, imageUrl, price, condition, listingUrl, store, storeUrl, firstSeen, lastSeen }
+    let seenSaveTimer = null;
+    try { seen = JSON.parse(localStorage.getItem(SEEN_KEY) || '{}') || {}; } catch (_) { seen = {}; }
+
+    function markSeen(l) {
+      if (!l || !l.key) return;
+      const now = Date.now();
+      const prev = seen[l.key];
+      seen[l.key] = {
+        key: l.key, title: l.title, artist: l.artist, imageUrl: l.imageUrl, price: l.price,
+        condition: l.condition, listingUrl: l.listingUrl,
+        store: state.query ? (state.query.username || state.query.artistName || '') : '',
+        storeUrl: state.query ? state.query.rawUrl : '',
+        firstSeen: prev ? prev.firstSeen : now, lastSeen: now
+      };
+      clearTimeout(seenSaveTimer);
+      seenSaveTimer = setTimeout(flushSeen, 1000);  // batch writes while flipping fast
+    }
+
+    function flushSeen() {
+      clearTimeout(seenSaveTimer);
+      const keys = Object.keys(seen);
+      if (keys.length > SEEN_MAX) {
+        keys.sort((a, b) => seen[a].lastSeen - seen[b].lastSeen)
+          .slice(0, keys.length - SEEN_MAX).forEach(k => delete seen[k]);
+      }
+      try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (_) {}
+    }
+    window.addEventListener('pagehide', flushSeen);
+
+    function snapshotSeen() { state.seenBaseline = new Set(Object.keys(seen)); }
+
+    // Re-filter the crate after the setting changes, staying on the same record when possible
+    function reapplySeenSetting(cur) {
+      if (!state.query || !sec()) return;
+      snapshotSeen();
+      const i = cur ? getVisibleListings().findIndex(l => l.key === cur.key) : -1;
+      sec().currentIndex = i >= 0 ? i : 0;
+      showSection();
+    }
+
+    const hideSeenToggle = $('hide-seen-toggle');
+    try { state.hideSeen = localStorage.getItem('rs_hide_seen') !== '0'; } catch (_) {}
+    hideSeenToggle.checked = state.hideSeen;
+    hideSeenToggle.addEventListener('change', () => {
+      const cur = state.query && sec() ? getVisibleListings()[sec().currentIndex] : null;  // before re-filtering
+      state.hideSeen = hideSeenToggle.checked;
+      try { localStorage.setItem('rs_hide_seen', state.hideSeen ? '1' : '0'); } catch (_) {}
+      reapplySeenSetting(cur);
+    });
+
+    function timeAgo(t) {
+      const m = Math.round((Date.now() - t) / 60000);
+      if (m < 1) return 'just now';
+      if (m < 60) return `${m}m ago`;
+      const h = Math.round(m / 60);
+      if (h < 24) return `${h}h ago`;
+      return new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    }
+
+    function dayLabel(t) {
+      const d = new Date(t), today = new Date();
+      const yest = new Date(); yest.setDate(today.getDate() - 1);
+      if (d.toDateString() === today.toDateString()) return 'Today';
+      if (d.toDateString() === yest.toDateString()) return 'Yesterday';
+      return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    function renderViewed() {
+      const q = $('viewed-search').value.trim().toLowerCase();
+      const all = Object.values(seen).sort((a, b) => b.lastSeen - a.lastSeen);
+      const list = q ? all.filter(e => `${e.artist} ${e.title} ${e.store}`.toLowerCase().includes(q)) : all;
+      $('viewed-count').textContent = q ? `${list.length} of ${all.length}` : `${all.length} records`;
+      $('viewed-empty').classList.toggle('hidden', all.length > 0);
+      $('viewed-clear').classList.toggle('hidden', all.length === 0);
+      const shown = list.slice(0, 300);
+      let lastDay = '';
+      $('viewed-grid').innerHTML = shown.map(e => {
+        const day = dayLabel(e.lastSeen);
+        const header = day !== lastDay ? `<div class="viewed-day">${esc(day)}</div>` : '';
+        lastDay = day;
+        const thumb = e.imageUrl
+          ? `<img class="store-card-thumb" loading="lazy" src="${esc(e.imageUrl)}" alt="">`
+          : '<div class="store-card-thumb"></div>';
+        const store = e.store
+          ? `<span class="viewed-store" data-store-url="${esc(e.storeUrl || '')}">${esc(e.store)}</span> · ` : '';
+        return `${header}<div class="store-card" data-url="${esc(e.listingUrl || '')}" data-key="${esc(e.key)}">
+          <button class="store-card-remove" title="Remove from history">&#x2715;</button>
+          ${thumb}
+          <div class="store-card-info"><div class="store-card-text">
+            <div class="store-card-name">${esc(e.title || '')}</div>
+            <div class="store-card-location">${esc(e.artist || '')}</div>
+            <div class="viewed-meta">${e.price && e.price !== '—' ? esc(e.price) + ' · ' : ''}${store}${timeAgo(e.lastSeen)}</div>
+          </div></div>
+        </div>`;
+      }).join('') + (list.length > shown.length
+        ? `<div class="viewed-day">…and ${list.length - shown.length} more — search to narrow down</div>` : '');
+    }
+
+    $('viewed-search').addEventListener('input', renderViewed);
+    $('viewed-clear').addEventListener('click', () => {
+      if (!confirm('Clear your whole viewed history? Seen records will show up again.')) return;
+      seen = {};
+      flushSeen();
+      renderViewed();
+    });
+    $('viewed-grid').addEventListener('click', e => {
+      const card = e.target.closest('.store-card');
+      if (!card) return;
+      if (e.target.closest('.store-card-remove')) {
+        delete seen[card.dataset.key];
+        state.seenBaseline.delete(card.dataset.key);
+        flushSeen();
+        renderViewed();
+        return;
+      }
+      const storeLink = e.target.closest('.viewed-store');
+      if (storeLink && storeLink.dataset.storeUrl) {
+        urlInput.value = storeLink.dataset.storeUrl;
+        switchTab('browse');
+        startLoad();
+        return;
+      }
+      if (card.dataset.url) window.open(card.dataset.url, '_blank', 'noopener,noreferrer');
+    });
+
+    // ── SECTIONS ──────────────────────────────────────────
+    function isSeller() { return state.query && state.query.type === 'seller'; }
+
+    function shelfIds() {
+      return isSeller() ? ['all', 'new', 'under10', 'mint', 'wanted'] : ['all', 'wanted'];
+    }
+
+    function groupsForQuery() {
+      return isSeller()
+        ? [['shelves', 'Shelves'], ['genre', 'Genre'], ['format', 'Format'], ['decade', 'Decade'], ['az', 'A–Z']]
+        : [['shelves', 'Shelves'], ['format', 'Format'], ['decade', 'Decade']];
+    }
+
+    function sectionAllowed(id) {
+      if (isSeller()) return true;
+      return id === 'all' || id === 'wanted' || id.startsWith('f:') || id.startsWith('d:');
+    }
+
+    function genreOfStyle(style) {
+      return Object.keys(STYLES).find(g => STYLES[g].includes(style)) || null;
+    }
+
+    function quoteTerm(t) { return t.includes(' ') ? `"${t}"` : t; }
+
+    function decadeLabel(d) { return d ? `${d}s` : 'Undated'; }
+
+    // Sections are created on demand from their id, so ?section= links can name any of them
+    function ensureSection(id) {
+      if (state.sections.has(id)) return state.sections.get(id);
+      const i = id.indexOf(':');
+      const kind = i < 0 ? id : id.slice(0, i);
+      const val  = i < 0 ? '' : id.slice(i + 1);
+      let s;
+      switch (kind) {
+        case 'all':     s = makeSection(id, 'shelves', 'All', { params: {} }); break;
+        case 'new':     s = makeSection(id, 'shelves', 'New Arrivals', {
+                          predicate: l => l.posted && Date.now() - l.posted < NEW_DAYS * 864e5 }); break;
+        case 'under10': s = makeSection(id, 'shelves', 'Under $10', {
+                          predicate: l => l.priceValue != null && l.priceValue < 10,
+                          sortFn: (a, b) => a.priceValue - b.priceValue }); break;
+        case 'mint':    s = makeSection(id, 'shelves', 'Mint / NM', {
+                          predicate: l => /^(Mint|Near Mint)/.test(l.condition) }); break;
+        case 'wanted':  s = makeSection(id, 'shelves', 'Most Wanted', {
+                          predicate: l => l.wants > 0, sortFn: (a, b) => b.wants - a.wants }); break;
+        case 'g':       s = makeSection(id, 'genre', val, { params: { q: quoteTerm(val) } }); break;
+        case 's':       s = makeSection(id, 'genre', val, { params: { q: quoteTerm(val) } }); break;
+        case 'f':       s = makeSection(id, 'format', val, { predicate: l => l.formatBin === val }); break;
+        case 'd': {
+          const d = parseInt(val, 10) || 0;
+          s = makeSection(id, 'decade', decadeLabel(d), { predicate: l => (l.yearNum ? Math.floor(l.yearNum / 10) * 10 : 0) === d });
+          break;
+        }
+        case 'az':      s = makeSection(id, 'az', 'A–Z', { params: { sort: 'artist', sort_order: 'asc' } }); break;
+        default:        s = makeSection(id, 'shelves', id, { params: {} });
+      }
+      if (s.kind === 'client') refreshClientSection(s);
+      state.sections.set(id, s);
+      return s;
+    }
+
+    function refreshClientSection(s) {
+      const cur = getVisibleListings(s)[s.currentIndex];
+      let list = allSec().listings.filter(s.predicate);
+      if (s.sortFn) list = list.slice().sort(s.sortFn);
+      s.listings = list;
+      s.loaded = true;
+      if (s.id === 'under10') {
+        const c = list[0] && list[0].currency;
+        s.label = `Under ${!c || c === 'USD' ? '$' : c + ' '}10`;
+      }
+      if (cur && s.touched) {
+        const i = getVisibleListings(s).findIndex(l => l.id === cur.id);
+        if (i >= 0) s.currentIndex = i;
+      }
+    }
+
+    // Called whenever the 'all' crawl grows
+    function refreshClientSections() {
+      for (const s of state.sections.values()) {
+        if (s.kind === 'client') refreshClientSection(s);
+      }
+      if (allSec().listings.length && sectionBar && !sectionBar.classList.contains('hidden')) {
+        const s = sec();
+        if (s.kind === 'client' || s.id === 'all') {
+          if (getVisibleListings().length && recordDisplay.classList.contains('hidden')) showSection();
+          else updateCounter();
+        }
+        renderSectionBar();
+        rebuildFilterOptions();
+      }
+    }
+
+    async function selectSection(id) {
+      if (!sectionAllowed(id)) return;
+      const s = ensureSection(id);
+      state.activeSectionId = id;
+      // Entering a section: everything seen so far gets skipped, so the first unseen record is "where you left off"
+      snapshotSeen();
+      if (state.hideSeen) s.currentIndex = 0;
+      updateShareUrl();
+      renderSectionBar();
+      if (s.kind === 'client') refreshClientSection(s);
+      if (getVisibleListings(s).length === 0 && hasMore(s)) {
+        showLoadingSkeleton();
+        await foreground(fillVisible(s, 1));
+        if (sec() !== s) return;
+      }
+      showSection();
+    }
+
+    // Show the active section's current record, or an empty bin
+    function showSection() {
+      const s = sec();
+      const visible = getVisibleListings();
+      if (!visible.length) {
+        recordDisplay.classList.add('hidden');
+        metaContent.classList.add('hidden');
+        metaSkeleton.classList.add('hidden');
+        emptyState.classList.add('hidden');
+        binEmpty.classList.remove('hidden');
+        const allSeen = s.listings.length > 0 && !hasMore(s) && state.hideSeen;
+        binEmpty.querySelector('h2').textContent = hasMore(s) ? 'Still sorting this bin…'
+          : allSeen ? "You've seen everything in this bin" : 'This bin is empty';
+        updateCounter();
+        if (hasMore(s) && s.kind === 'server' && !state.loading) {
+          foreground(fillVisible(s, 1)).then(() => { if (sec() === s && getVisibleListings().length) showSection(); });
+        }
+        return;
+      }
+      s.currentIndex = Math.min(Math.max(s.currentIndex, 0), visible.length - 1);
+      showRecordDisplay();
+      render();
+    }
+
+    function updateShareUrl() {
+      const pageUrl = new URL(window.location.href);
+      if (state.activeSectionId === 'all') pageUrl.searchParams.delete('section');
+      else pageUrl.searchParams.set('section', state.activeSectionId);
+      history.replaceState(null, '', pageUrl.toString());
+    }
+
+    // ── GENRE / STYLE COUNTS (server-side via inventory q=) ──
+    async function probeGenres() {
+      const gen = apiQueue.generation;
+      state.genreCounts = {};
+      await Promise.all(GENRES.map(async g => {
+        try {
+          const n = await fetchCount({ q: quoteTerm(g) });
+          if (gen !== apiQueue.generation) return;
+          state.genreCounts[g] = n;
+          if (state.group === 'genre') renderSectionBar();
+        } catch (_) {}
+      }));
+      if (gen !== apiQueue.generation) return;
+      state.genreCounts._done = true;
+      renderSectionBar();
+      saveCache();
+    }
+
+    async function probeStyles(genre) {
+      const styles = STYLES[genre];
+      if (!styles || state.styleProbed[genre]) return;
+      state.styleProbed[genre] = 'pending';
+      const gen = apiQueue.generation;
+      await Promise.all(styles.filter(st => !(st in state.styleCounts)).map(async st => {
+        try {
+          const n = await fetchCount({ q: quoteTerm(st) });
+          if (gen !== apiQueue.generation) return;
+          state.styleCounts[st] = n;
+          if (state.activeGenre === genre) renderSectionBar();
+        } catch (_) {}
+      }));
+      if (gen !== apiQueue.generation) return;
+      state.styleProbed[genre] = true;
+      renderSectionBar();
+      saveCache();
+    }
+
+    // ── A–Z ───────────────────────────────────────────────
+    const LETTERS = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
+
+    // Matches Discogs' artist sort, which files "The Rapture" under R and "DJ C4" under C
+    function letterOf(artist) {
+      const ch = (artist || '').replace(/^(the|dj)\s+/i, '').normalize('NFD').charAt(0).toUpperCase();
+      return /[A-Z]/.test(ch) ? ch : '#';
+    }
+
+    // Binary-search the artist-sorted inventory for the page where `letter` starts.
+    // Each probe is a 1-item request for the last record on page p (item p*PER_PAGE);
+    // probed boundaries are remembered on the section so later jumps are mostly free.
+    function jumpToLetter(letter) {
+      const s = ensureSection('az');
+      state.activeSectionId = 'az';
+      state.azLetter = letter;
+      snapshotSeen();
+      updateShareUrl();
+      renderSectionBar();
+      showLoadingSkeleton();
+      const key = L => LETTERS.indexOf(L);
+      s.lastLetter = s.lastLetter || new Map();  // page -> letter of its last record
+      return foreground((async () => {
+        if (!s.pagination.totalItems) await loadMore(s);
+        const total = s.pagination.totalItems;
+        const lastLetter = async p => {
+          if (!s.lastLetter.has(p)) {
+            // Smallest page size that reaches item n without going past page MAX_PAGE
+            const n = Math.min(p * PER_PAGE, total);
+            const size = [1, 2, 4, 5, 10, 20, 25, 50, 100].find(k => Math.ceil(n / k) <= MAX_PAGE);
+            const d = await apiJson(buildApiUrl(state.query, Math.ceil(n / size), s.params, size));
+            const l = (d.listings || [])[(n - 1) % size];
+            s.lastLetter.set(p, l ? letterOf(l.release.artist) : 'Z');
+          }
+          return s.lastLetter.get(p);
+        };
+        let lo = 1, hi = Math.max(1, Math.min(Math.ceil(total / PER_PAGE), MAX_PAGE));
+        while (lo < hi) {
+          const mid = (lo + hi) >> 1;
+          if (key(await lastLetter(mid)) >= key(letter)) hi = mid;
+          else lo = mid + 1;
+        }
+        const data = await fetchPage(state.query, lo, s.params);
+        if (sec() !== s || state.azLetter !== letter) return;
+        s.listings = normalizeAll(data);
+        s.firstPage = lo;
+        const pg = data.pagination || {};
+        s.pagination = { page: lo, pages: pg.pages || lo, totalItems: pg.items || total };
+        const idx = getVisibleListings(s).findIndex(l => key(letterOf(l.artist)) >= key(letter));
+        s.currentIndex = idx >= 0 ? idx : 0;
+        s.touched = true;
+        showSection();
+      })());
+    }
+
+    // ── SECTION BAR ───────────────────────────────────────
+    function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+
+    function tabHtml(id, label, count, extra = '') {
+      // A genre stays lit while one of its styles is selected
+      const active = id === state.activeSectionId ||
+        (id === `g:${state.activeGenre}` && state.activeSectionId.startsWith('s:')) ? ' active' : '';
+      const c = count == null ? '' : `<span class="tab-count">${count}</span>`;
+      return `<button class="divider-tab${extra}${active}" data-section="${esc(id)}">${esc(label)}${c}</button>`;
+    }
+
+    // Count of client-section items straight from the index (no section needed)
+    function indexCounts(keyFn) {
+      const m = new Map();
+      for (const l of allSec().listings) { const k = keyFn(l); m.set(k, (m.get(k) || 0) + 1); }
+      return m;
+    }
+
+    function indexNote() {
+      const a = allSec();
+      if (indexIncomplete()) return `<span class="section-note">indexing ${a.listings.length} / ${a.pagination.totalItems}…</span>`;
+      if (a.pagination.page < a.pagination.pages) return `<span class="section-note">from newest ${a.listings.length}</span>`;
+      return '';
+    }
+
+    function renderSectionBar() {
+      if (!state.query || !allSec()) return;
+      const groupsEl = $('section-groups');
+      const tabsEl   = $('section-tabs');
+      const subEl    = $('section-subtabs');
+      const more = indexIncomplete() ? '+' : '';
+
+      groupsEl.innerHTML = groupsForQuery().map(([g, label]) =>
+        `<button class="group-btn${state.group === g ? ' active' : ''}" data-group="${g}">${label}</button>`).join('');
+
+      let tabs = '', sub = '';
+      if (state.group === 'shelves') {
+        tabs = shelfIds().map(id => {
+          const s = ensureSection(id);
+          return tabHtml(id, s.label, id === 'all' ? allSec().pagination.totalItems : s.listings.length + more);
+        }).join('') + indexNote();
+      } else if (state.group === 'genre') {
+        const gc = state.genreCounts;
+        if (!gc) tabs = '<span class="section-note">counting genres…</span>';
+        else {
+          tabs = GENRES.filter(g => gc[g] > 0).sort((a, b) => gc[b] - gc[a])
+            .map(g => tabHtml(`g:${g}`, g, gc[g])).join('');
+          if (!gc._done) tabs += '<span class="section-note">counting…</span>';
+          else if (!tabs) tabs = '<span class="section-note">no genres matched</span>';
+        }
+        const g = state.activeGenre;
+        if (g && STYLES[g]) {
+          const sc = state.styleCounts;
+          sub = STYLES[g].filter(st => sc[st] > 0).sort((a, b) => sc[b] - sc[a])
+            .map(st => tabHtml(`s:${st}`, st, sc[st], ' sub')).join('');
+          if (state.styleProbed[g] !== true) sub += '<span class="section-note">sorting styles…</span>';
+        }
+      } else if (state.group === 'format') {
+        const m = indexCounts(l => l.formatBin);
+        tabs = [...m.entries()].sort((a, b) => b[1] - a[1])
+          .map(([f, n]) => tabHtml(`f:${f}`, f, n + more)).join('') + indexNote();
+      } else if (state.group === 'decade') {
+        const m = indexCounts(l => l.yearNum ? Math.floor(l.yearNum / 10) * 10 : 0);
+        tabs = [...m.entries()].sort((a, b) => (a[0] || 9999) - (b[0] || 9999))
+          .map(([d, n]) => tabHtml(`d:${d}`, decadeLabel(d), n + more)).join('') + indexNote();
+      } else if (state.group === 'az') {
+        const cur = state.activeSectionId === 'az' && getVisibleListings()[sec().currentIndex];
+        const curLetter = cur ? letterOf(cur.artist) : state.azLetter;
+        tabs = LETTERS.map(L =>
+          `<button class="divider-tab${L === curLetter ? ' active' : ''}" data-letter="${L}">${L}</button>`).join('');
+      }
+      tabsEl.innerHTML = tabs;
+      tabsEl.classList.toggle('letter-rail', state.group === 'az');
+      subEl.innerHTML = sub;
+      subEl.classList.toggle('hidden', !sub);
+
+      // Bring the active divider into view when the section changes (narrow screens)
+      const key = `${state.group}|${state.activeSectionId}`;
+      // While counts are still arriving the tabs reorder, so keep following the active one
+      const settling = !!(tabsEl.querySelector('.section-note') || subEl.querySelector('.section-note'));
+      if ((key !== lastScrolledKey || settling) && tabsEl.querySelector('.active')) {
+        lastScrolledKey = key;
+        [tabsEl, subEl].forEach(row => {
+          const act = row.querySelector('.active');
+          if (!act) return;
+          const left = act.offsetLeft - row.offsetLeft;
+          if (left < row.scrollLeft || left + act.offsetWidth > row.scrollLeft + row.clientWidth) {
+            row.scrollLeft = left - 16;
+          }
+        });
+      }
+    }
+    let lastScrolledKey = '';
+
+    sectionBar.addEventListener('click', e => {
+      const groupBtn = e.target.closest('[data-group]');
+      if (groupBtn) {
+        state.group = groupBtn.dataset.group;
+        if (state.group === 'az' && state.activeSectionId !== 'az') { selectSection('az'); return; }
+        renderSectionBar();
+        return;
+      }
+      const letterBtn = e.target.closest('[data-letter]');
+      if (letterBtn) { if (!state.loading) jumpToLetter(letterBtn.dataset.letter); return; }
+      const tab = e.target.closest('[data-section]');
+      if (!tab || state.loading) return;
+      const id = tab.dataset.section;
+      if (id.startsWith('g:')) {
+        state.activeGenre = id.slice(2);
+        probeStyles(state.activeGenre);
+      }
+      selectSection(id);
+    });
+
+    // ── LOCAL CACHE (per seller, 6h) ──────────────────────
+    function cacheKey() {
+      return isSeller() ? `rs_cache_${state.query.username.toLowerCase()}` : null;
+    }
+
+    function loadCache() {
+      const key = cacheKey();
+      if (!key) return null;
+      try {
+        const c = JSON.parse(localStorage.getItem(key) || 'null');
+        if (c && c.v === CACHE_VER && c.all && Date.now() - c.ts < CACHE_TTL) { state.cacheTs = c.ts; return c; }
+      } catch (_) {}
+      state.cacheTs = null;
+      return null;
+    }
+
+    function saveCache() {
+      const key = cacheKey();
+      if (!key || !allSec()) return;
+      const a = allSec();
+      const entry = { v: CACHE_VER, ts: state.cacheTs || Date.now(), genreCounts: state.genreCounts,
+                      styleCounts: state.styleCounts,
+                      styleProbed: Object.fromEntries(Object.entries(state.styleProbed).filter(([, v]) => v === true)),
+                      all: { listings: a.listings, pagination: a.pagination } };
+      state.cacheTs = entry.ts;
+      try {
+        localStorage.setItem(key, JSON.stringify(entry));
+      } catch (_) {
+        // Over quota: drop other sellers' caches and retry once
+        try {
+          Object.keys(localStorage).filter(k => k.startsWith('rs_cache_') && k !== key)
+            .forEach(k => localStorage.removeItem(k));
+          localStorage.setItem(key, JSON.stringify(entry));
+        } catch (_) {}
+      }
     }
 
     // ── UI HELPERS ────────────────────────────────────────
     function showLoadingSkeleton() {
       emptyState.classList.add('hidden');
+      binEmpty.classList.add('hidden');
       recordDisplay.classList.add('hidden');
       metaSkeleton.classList.remove('hidden');
       metaContent.classList.add('hidden');
@@ -1766,6 +2784,7 @@
 
     function showRecordDisplay() {
       emptyState.classList.add('hidden');
+      binEmpty.classList.add('hidden');
       recordDisplay.classList.remove('hidden');
       artSkeleton.classList.add('hidden');
       metaSkeleton.classList.add('hidden');
@@ -1776,7 +2795,7 @@
       errorMsg.textContent = msg;
       errorMsg.classList.remove('hidden');
       // If no listings yet, restore empty state
-      if (state.listings.length === 0) {
+      if (!allSec() || allSec().listings.length === 0) {
         emptyState.classList.remove('hidden');
         recordDisplay.classList.add('hidden');
         metaSkeleton.classList.add('hidden');
@@ -1798,7 +2817,7 @@
       // Format chips
       const chipsWrap = $('f-format-chips');
       const formats = [...new Set(
-        state.listings.flatMap(l => l.format.split(',').map(f => f.trim()).filter(Boolean))
+        allSec().listings.flatMap(l => l.format.split(',').map(f => f.trim()).filter(Boolean))
       )].sort();
       const activeFormats = state.filters.formats;
       chipsWrap.innerHTML = formats.map(fmt =>
@@ -1820,7 +2839,8 @@
     }
 
     function applyFilters() {
-      state.currentIndex = 0;
+      if (!state.query) return;
+      sec().currentIndex = 0;
       const visible = getVisibleListings();
       if (visible.length === 0) {
         paginationCtr.textContent = '0 / 0 (filtered)';
